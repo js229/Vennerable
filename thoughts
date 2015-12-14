@@ -1,0 +1,45 @@
+More thoughts
+<advertisement of unfinished but possibly useful code>
+An alpha version of a Venn diagram package is available in the Vennerable
+project at sourceforge.net:
+	http://sourceforge.net/projects/vennerable/
+There is no function documentation whatsoever but there is a richly illustrated vignette.
+As the vignette says,
+The Vennerable package provides routines to compute and plot
+Venn diagrams, from the classic two- and three-circle diagrams
+to diagrams using different shapes and
+for up to seven sets. In addition it can plot diagrams in which the
+area of each region is is proportional to the corresponding number of set items or 
+other weights.
+
+The vignette is at http://sourceforge.net/project/showfiles.php?group_id=187852&package_id=248212
+</advertisement of unfinished but possibly useful code>
+The development of the package was a hobby halted for a while by some more important real life events
+but I will restart it if there is interest. In the mean time, some of the thoughts that it prompted:
+
+
+Some observations on Venn diagrams from the perspective of information display
+
+1) That's right, you can't create Venn diagrams for more than 3 sets using circles.
+Even Venn suggested using ellipses for 4 sets, and Liqun He demonstrated a very elegant
+drawing for 5 ellipses. 
+3) For displaying Venn diagrams with information on what is in each intersection, the 2- and 3- circle diagrams are so
+well established that using anything else may be confusing, but they are not at all ideal. Particularly for the
+3-circle case, the resulting geometry with lots of curved pointy sectors, causes the relative size of each intersection 
+to be visually misleading, especially if one is trying to make the point that there are more elements in one
+particular intersection than others. Placing text inside the intersections is also tricky.  Ellipses share the
+same difficulties.
+2) The 'Cogwheels of the mind' book by AWF Edwards is an entertaining and attractive read,
+ and does give his construction of Venn diagrams for an arbitrary number of sets. It wouldn't claim
+to say it gives 'the' theory. The constructions are not really usable to display content 
+by themselves (and weren't meant to be). Any such construction is self-similar in nature and there's a reason
+Tufte doesnt draw on fractals much. (Though typing that is probably a challenge to someone). 
+4) For Venn diagrams on 3 or 4 sets I think a rectangular construction (invented by Lewis Carroll and
+described by Edwards) is much clearer. There is an example of the 4-set diagram in the vignette mentioned above.
+
+A generalisation of Venn diagrams is to draw the curves so that the area of each intersection is proportional
+to some weight (typically the number of members in that intersection). Some observations on this:
+1) This works well for 2 sets using overlapping circles. 
+2) You can't do it in general for 3 sets using circles (although some have tried: there is eg a contributed Matlab code for this
+and my package implements a similar approximate algorithm.
+3) You can do it for 3 sets using squares with bits hacked out. 

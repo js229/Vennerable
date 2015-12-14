@@ -1,0 +1,936 @@
+%**************************************************************************
+%
+% # $Id: Venn.Rnw 80 2013-07-24 22:13:34Z js229 $
+%\VignetteIndexEntry{Read this first: package overview}
+
+<<defmakeme,echo=FALSE,eval=FALSE>>=
+makeme <- function() {
+	setwd("C:/Users/dad/Documents/vennerable/pkg/Vennerable/inst/doc")
+	#library(weaver);	Sweave(driver="weaver","Venn.Rnw",stylepath=FALSE,use.cache=FALSE)
+	Sweave("Venn.Rnw",stylepath=FALSE)
+}
+makeme()
+@
+
+% $Revision: 1.26 $
+% $Author: js229 $
+% $Date: 2013-07-24 23:13:34 +0100 (Wed, 24 Jul 2013) $
+% $Log: Venn.Rnw,v $
+
+\documentclass[a4paper]{article}
+
+
+\title{
+Venn diagrams in R\\with the \texttt{Vennerable} package
+}
+\author{Jonathan Swinton\\\texttt{jonathan@swintons.net}}
+
+\usepackage{Sweave}
+\SweaveOpts{prefix.string=Vennfig,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
+\usepackage{float}
+\usepackage{natbib}
+\usepackage{mathptmx}
+\usepackage{rotating} 
+\usepackage[nodayofweek]{datetime}\longdate
+\usepackage{hyperref}
+\begin{document}
+
+
+\maketitle
+<<loadstuff>>=
+library(grid)
+#library(Vennerable)
+@
+<<doremove,echo=FALSE>>=
+if ("package:Vennerable" %in% search())detach("package:Vennerable")
+remove(list=setdiff(ls(),"makeme"));library(Vennerable)
+@
+
+<<defmakevp>>=
+options(width=80)
+@
+\begin{center}
+<<front,fig=TRUE,cache=TRUE>>=
+V4 <- Venn(n=4)
+#plotVenn(V4,type="ellipses",doWeights=FALSE,
+#	show=list(Universe=FALSE,FaceText="",SetLabels=FALSE,Faces=FALSE))
+plot(V4,type="ellipses",doWeights=FALSE,
+	show=list(Universe=FALSE,FaceText="",SetLabels=FALSE,Faces=FALSE))
+@
+\end{center}
+\newpage
+\tableofcontents
+\newpage
+\section{Overview}
+The Vennerable package provides routines to compute and plot
+Venn diagrams, including the classic two- and three-circle diagrams
+but also a variety of others with different properties and
+for up to seven sets. In addition it can plot diagrams in which the
+area of each region is proportional to the corresponding number of set items or 
+other weights. This includes Euler diagrams, which can be thought of as Venn diagrams where 
+regions corresponding to empty intersections have been removed.
+
+
+Figure \ref{fig:canonical} shows a three-circle Venn diagram of the sort
+commonly found. To draw it, we use as an example the \texttt{StemCell} data
+of Boyer et al.\cite{boyer2005} which lists the gene names associated with each of four transcription factors
+<<loadsetm,echo=TRUE>>=
+library(Vennerable)
+data(StemCell)
+str(StemCell)
+@
+First we construct an object of class \texttt{Venn}:
+<<loadstem,echo=TRUE>>=
+Vstem <- Venn(StemCell)
+Vstem
+@
+Although Vennerable can cope with 4-set Venn diagrams, for now we reduce to a three-set object
+<<to3,echo=TRUE>>=
+Vstem3 <- Vstem[,c("OCT4","SOX2","NANOG")]
+Vstem3
+@
+Note how the weights were appropriately updated.
+
+@
+Now a call to {\texttt plot} produces the diagram in Figure~\ref{fig:canonical} showing how many genes are common to each transcription factor.
+\begin{figure}[H]\begin{center}
+<<pVmonth3,echo=TRUE,fig=TRUE>>=
+plot(Vstem3,doWeights=FALSE)
+@
+\caption{A three-circle Venn diagram} 
+\label{fig:canonical}
+\end{center}\end{figure}
+
+Quite commonly, we may have sets whose intersections we only know by the number of elements. These
+can be created as \texttt{Venn} objects by supplying a named
+ vector of \texttt{Weight}s:
+<<echo=TRUE>>=
+Vdemo2 <- Venn(SetNames=c("foo","bar"),Weight= c("01"=7,"11"=8,"10"=12))
+@
+Whichever way the \texttt{Venn} object is created, we can plot Venn diagrams in which the area of each intersection is proportional to those weights as in Figure~\ref{fig:w2}.
+\begin{figure}[H]\begin{center}
+<<pVS23,echo=TRUE,fig=TRUE>>=
+plot(Vdemo2,doWeights=TRUE,type="circles")
+@
+\caption{A two-set weighted Venn diagram} 
+\label{fig:w2}
+\end{center}\end{figure}
+  
+
+For these basic plots, use of the \texttt{Vennerable} package may sometimes be
+overkill, but in more complex situations it has useful abilities.
+First it allows the use of a variety of other shapes for
+the set boundaries, and up to nine different sets.
+Secondly it implements a number of published or novel
+algorithms for generating diagrams in which the area
+of each region is proportional to, for example, the number
+of corresponding set elements. Finally it adds a number of
+graphical control abilities, including the ability to colour individual
+regions separately.
+\section{Computation and Annotation}
+\subsection{Computing Venn drawings}
+The calls to \texttt{plot} are really convenience wrappers for two separate functions; the 
+first computes the geometry of the drawing, returning an object of class \texttt{VennDrawing},
+and the second renders that object.
+For example
+<<pnosho,echo=TRUE,eval=TRUE>>=
+plot(Vstem3,doWeights=TRUE)
+@
+is equivalent to
+\begin{figure}[H]\begin{center}
+<<pwVmonth3,echo=TRUE,fig=TRUE>>=
+C3 <- compute.Venn(Vstem3,doWeights=TRUE)
+grid::grid.newpage()
+plot(C3)
+@
+\caption{A weighted three-circle Venn diagram} 
+\label{fig:canonicalw}
+\end{center}\end{figure}
+@
+Note the use of a function from the \texttt{grid} graphics library package: 
+all of the renderings are created using \texttt{grid} objects.
+The \texttt{compute.Venn} function can take a variety of arguments such 
+as \texttt{doWeights} controlling the geometry and topology of the drawing, while the \texttt{plot} method
+has a number of arguments controlling annotation and display.
+\subsection{Annotation parameters}
+The text displayed in each face is controlled by the \texttt{FaceText} element of
+the \texttt{show} parameter list to \texttt{plot}. 
+Other elements of the parameter control whether, for example, set names are displayed or faces are individually coloured
+
+\begin{figure}[H]\begin{center}
+<<pwabVmonth3sig,echo=TRUE,fig=TRUE>>=
+grid::grid.newpage()
+plot(C3,show=list(FaceText="signature",SetLabels=FALSE,Faces=FALSE,DarkMatter=FALSE))
+@
+\caption{The same Venn diagram with different \texttt{show} parameters} 
+\label{fig:canonicals}
+\end{center}\end{figure}
+
+\subsection{Graphical parameters}
+The package makes its own decisions about how to colour lines and faces depending on the 
+complexity of the diagram. This can be overridden with the \texttt{gpList} argument
+to \texttt{plot}. The default choices are equivalent to 
+<<eval=FALSE,echo=TRUE>>=
+gpList <- VennThemes(C3)
+plot(C3,gpList=gpList)
+@
+Low-level modifications can be using the \texttt{gpList} argument, typically by modifying the value of a call to \texttt{VennThemes}.
+There is more detail on the \texttt{VennThemes} man page about the format of \texttt{gpList}.
+More high-level modifications can be made by supplying the \texttt{ColourAlgorithm} or \texttt{increasingLineWidth} arguments to \texttt{VennThemes}.
+
+\begin{figure}[H]\begin{center}
+<<pwabVmonth3,echo=TRUE,fig=TRUE>>=
+grid::grid.newpage()
+gp <- VennThemes(C3,colourAlgorithm="binary")
+plot(C3,gpList=gp,show=list(FaceText="sets",SetLabels=FALSE,Faces=TRUE))
+@
+\caption{The effect of setting \texttt{ColourAlgorithm="binary"} and \texttt{FaceText="sets"}} 
+\label{fig:canonicalb}
+\end{center}\end{figure}
+
+The position and format of the set and face annotation are controlled by the data returned by \texttt{VennGetSetLabels} and \texttt{VennGetFaceLabels},
+respectively, which can be modified and then reembedded in the \texttt{VennDrawing} object with \texttt{VennSetSetLabels} and \texttt{VennSetFaceLabels}.
+
+
+\begin{figure}[H]\begin{center}
+<<pwabVmonth3x2,echo=TRUE,fig=TRUE>>=
+grid::grid.newpage()
+SetLabels <- VennGetSetLabels(C3)
+SetLabels[SetLabels$Label=="SOX2","y"] <- SetLabels[SetLabels$Label=="NANOG","y"]
+C3 <- VennSetSetLabels(C3,SetLabels)
+plot(C3)
+@
+\caption{Modifying the position of annotation} 
+\label{fig:canonicald}
+\end{center}\end{figure}
+
+\newpage
+\section{Unweighted Venn diagrams}
+
+For another running example, we use sets named after months,
+whose elements are the letters of their names.
+<<mvn1,echo=TRUE>>=
+setList <- strsplit(month.name,split="")
+names(setList) <- month.name
+Vmonth3 <- VennFromSets( setList[1:3])
+Vmonth2 <- Vmonth3[,c("January","February"),]
+@
+
+
+
+\subsection{Unweighted 2-set Venn diagrams}
+
+
+For two sets, a diagram can be drawn using either circles or squares, as controlled
+by the \texttt{type} argument. This is shown in Figure~\ref{fig:Vmonth2cs}.\footnote{Here and in the rest of this vignette, much of the code to plot the Figures, which is mainly devoted to
+layout,  is not shown. However it can always be found by inspecting the source code
+of the vignette at \texttt{PACKAGETREE/Vennerable/doc/Venn.Rnw} where \texttt{PACKAGETREE} is directory where the package was installed.}.
+
+
+<<c19,echo=FALSE>>=
+showe <- list(FaceText="elements",Faces=TRUE,DarkMatter=FALSE)
+
+doAnnotatedVP <- function(TD,annotation,show) {
+	anlay <- grid.layout(2,1,heights=unit(c(1,1),c("null","lines")))
+	grid::pushViewport(viewport(layout=anlay))
+	grid::pushViewport(viewport(layout.pos.row=2))
+	grid.text(label=annotation)
+	popViewport()
+	grid::pushViewport(viewport(layout.pos.row=1))
+	gp <- VennThemes(TD)
+	gp <- lapply(gp,function(x){lapply(x,function(z){z$fontsize <- 10;z})})
+	plot(TD,show=show,gpList=gp)
+	popViewport()
+	popViewport()
+	}
+doavp <- function(V,doWeights,doEuler,type) {
+	TD <- compute.Venn(V,doWeights=doWeights,doEuler=doEuler,type=type)
+	Vname <- deparse(substitute(V))
+#	if (missing(doWeights)) dow <- "" else dow <- sprintf(",doWeights=%s",doWeights)
+#	if (missing(doEuler)) dow <- "" else doe <- sprintf(",doEuler=%s",doEuler)
+	txt <- sprintf("plot(%s,type=%s,...)",Vname,type)
+	doAnnotatedVP(TD,annotation=txt,show=showe)
+}
+@
+ 
+<<pVmonth2uw,echo=FALSE>>=
+dopv2uw <- function(V) {
+	grid::grid.newpage()
+	grid::pushViewport(viewport(layout=grid.layout(1,2)))
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
+	doavp(V,type="circles",doWeights=FALSE,doEuler=FALSE)
+	upViewport()
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
+	doavp(V,"squares",doWeights=FALSE,doEuler=FALSE)
+	popViewport()
+}
+@
+\begin{figure}[H]\begin{center}
+
+<<pv2uwwww,fig=TRUE,eval=TRUE>>=
+dopv2uw(Vmonth2)
+@
+\caption{Unweighted 2-set Venn diagrams with \texttt{type=circles} or \texttt{type=squares}}
+\label{fig:Vmonth2cs}
+\end{center}\end{figure}
+
+\newpage
+\subsection{Unweighted 3-set Venn diagrams}
+For three sets, the \texttt{type} argument
+can be \texttt{circles}, \texttt{squares}, 
+\texttt{ChowRuskey}, \texttt{triangles} or \texttt{AWFE}. We have already seen the circles plot.
+The AWFE plot is an implementation of the elegant
+ideas of  \cite{edwards:2004}. 
+The Chow-Ruskey plot is from \cite{chowruskey:2005}, and is a redrawing of the AWFE plot in such a way that there is an algorithm which will
+allow all of the faces to be adjusted in area without disrupting the topology of the diagram. 
+The triangles plot is fairly obvious, for example to reference\cite{chow:2007}, but I have not seen it implemented elsewhere.
+
+This example of the squares plot is not \emph{simple}, in the sense of \cite{ruskeyweston:2005}, because the set boundaries don't cross transversally.
+Topologically, there is only one simple Venn diagram of order 3 (in a way that \cite{ruskeyweston:2005} makes precise).
+
+
+\begin{figure}[H]\begin{center}
+<<pV3uw,echo=FALSE>>=
+plotV3uw <- function(V) {
+	grid::grid.newpage()
+	grid::pushViewport(viewport(layout=grid.layout(2,2)))
+	anlay <- grid.layout(2,1,heights=unit(c(1,1),c("null","lines")))
+	
+	
+	doavp <- function(type) {
+		C2 <- compute.Venn(V,doWeights=FALSE,doEuler=FALSE,type=type)		
+		grid::pushViewport(viewport(layout=anlay))
+		txt <- sprintf("plot(Vmonth3,type=%s,...)",dQuote(type))
+		grid::pushViewport(viewport(layout.pos.row=2))
+		grid.text(label=txt)
+		popViewport()
+		grid::pushViewport(viewport(layout.pos.row=1))
+
+		plot(C2,show=list(
+			Sets=TRUE,FaceText="weight",
+			SetLabels=FALSE,DarkMatter=FALSE,Faces=TRUE))
+		popViewport()
+		popViewport()
+	}
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
+	doavp("ChowRuskey")
+	upViewport()
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
+	doavp("squares")
+	popViewport()
+	grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=1))
+	doavp("triangles")
+	popViewport()
+	grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=2))
+	doavp("AWFE")
+	popViewport()
+}
+@
+<<pv3uwww,fig=TRUE,eval=FALSE>>=
+plotV3uw(Vmonth3)
+@
+\end{center}\end{figure}
+\newpage
+\subsection{Unweighted 4-set Venn diagrams}
+For four sets, the \texttt{type} argument
+can be  \texttt{ChowRuskey}, \texttt{AWFE},\texttt{squares} or \texttt{ellipses}.
+
+The squares plot is said by Edwards \cite{edwards:2004} to have
+been introduced by Lewis Carroll \cite{carroll:1896}.
+The ellipse plot was suggested by Venn \cite{venn:1880}.
+
+Note how the package makes an attempt to identify a point within each face where the annotation can be plotted,
+but doesn't make a very good choice for very non-concave or elongated faces.
+
+<<makeCrd1c,echo=FALSE>>=
+V4 <-  Venn(n=4)
+@
+
+\begin{figure}[H]\begin{center}
+<<pV4uw,fig=TRUE,cache=TRUE,eval=TRUE>>=
+plotV4uw <- function(V) {
+	grid::grid.newpage()
+	grid::pushViewport(viewport(layout=grid.layout(2,2)))
+	doavp <- function(type) {
+		C2 <- compute.Venn(V,doWeights=FALSE,doEuler=FALSE,type=type)		
+		plot(C2,show=list(
+			Sets=TRUE,
+			FaceText="signature",
+			SetLabels=FALSE,DarkMatter=FALSE,Faces=TRUE))
+	}
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
+	doavp("ChowRuskey")
+	upViewport()
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
+	doavp("squares")
+	upViewport()
+	grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=1))
+	doavp("ellipses")
+	upViewport()
+	grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=2))
+	doavp("AWFE")
+	upViewport()
+}
+plotV4uw(V4)
+@
+\caption{Venn diagrams on four sets drawn with the \texttt{type} argument set to \texttt{ChowRuskey},
+ \texttt{squares}, \texttt{ellipses}, and  \texttt{AWFE}.
+}
+\end{center}\end{figure}
+
+A number of variants on the \texttt{squares} type are implemented. Currently they can only be accessed
+by passing the parameters \texttt{s} or \texttt{likesquares} to the low level creation function \texttt{compute.S4} directly,
+which is what is done in Figure~\ref{fig:4sq4}.
+
+
+<<S4figdef,echo=FALSE>>=
+dosans <- function(V4,s,likeSquares,showe) {
+	S4  <- compute.S4(V4,s=s,likeSquares=likeSquares)
+	gp <- VennThemes(S4,increasingLineWidth=TRUE)
+	anlay <- grid.layout(2,1,heights=unit(c(1,1),c("null","lines")))
+	grid::pushViewport(viewport(layout=anlay))
+	txt <- sprintf("compute.S4(V4,s=%f,likeSquares=%f)",s,likeSquares)
+	grid::pushViewport(viewport(layout.pos.row=2))
+	popViewport()
+	grid::pushViewport(viewport(layout.pos.row=1))
+	plot(S4,gpList=gp,show=showe)
+	popViewport()
+	popViewport()
+}
+
+@
+For more details on this see the help pages for \texttt{compute.S4}.
+
+\begin{figure}[H]\begin{center}
+<<S4fig,fig=TRUE,eval=TRUE>>=
+shows4 <- list(SetLabels=FALSE,Faces=TRUE,FaceText="signature",DarkMatter=FALSE)
+grid::grid.newpage()
+grid::pushViewport( viewport(layout=grid.layout(2,2)))
+grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
+dosans(V4,s=0.2,likeSquares=FALSE,shows4 )
+upViewport()
+grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
+dosans(V4,s=0,likeSquares=FALSE,shows4 )
+upViewport()
+grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=1))
+dosans(V4,s=0.2,likeSquares=TRUE,shows4 )
+upViewport()
+grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=2))
+dosans(V4,s=0,likeSquares=TRUE,shows4 )
+upViewport()
+
+@
+\caption{Four variants on the four-squares}
+\label{fig:4sq4}
+\end{center}\end{figure}
+
+
+\clearpage
+\subsection{Unweighted Venn diagrams on more than four sets}
+
+The package implements a variant of the Edwards construction\cite{edwards:2004}, which can in principle 
+generate Venn diagrams on an arbitrary number of sets $n$. The currently implemented algorithm only 
+computes up to 8 sets for the classic construction. 
+
+\begin{figure}[H]\begin{center}
+<<S47fig,fig=TRUE,cache=TRUE,eval=TRUE>>=
+doans <- function(n) {
+	S4  <- compute.AWFE(Venn(n=n),type="AWFE")
+	if (n==1) { # borrow the universe from the larger picture
+		S5 <- compute.AWFE(Venn(n=2),type="AWFE")
+		S4 <- VennSetUniverseRange(S4,VennGetUniverseRange(S5))
+	}
+	gp <- VennThemes(drawing=S4,colourAlgorithm="binary")
+	plot(S4,gpList=gp,show=list(FaceText="",Faces=TRUE,SetLabels=FALSE,Sets=FALSE))
+}
+grid::grid.newpage()
+grid::pushViewport( viewport(layout=grid.layout(3,2)))
+grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
+doans(1)
+upViewport()
+grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
+doans(2)
+upViewport()
+grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=1))
+doans(3)
+upViewport()
+grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=2))
+doans(4)
+upViewport()
+grid::pushViewport(viewport(layout.pos.row=3,layout.pos.col=1))
+doans(5)
+upViewport()
+grid::pushViewport(viewport(layout.pos.row=3,layout.pos.col=2))
+doans(6)
+upViewport()
+if (FALSE) {
+grid::pushViewport(viewport(layout.pos.row=4,layout.pos.col=1))
+doans(7)
+upViewport()
+grid::pushViewport(viewport(layout.pos.row=4,layout.pos.col=2))
+doans(8)
+upViewport()
+}
+@
+\caption{Edwards constructions for five to eight sets}
+\end{center}\end{figure}
+
+
+A variant on the Edwards construction I developed as both quicker to compute with, because it is based on straight lines,
+and slightly easier to visualise high-order intersections in, is shown in Figure \ref{fig:battle}.
+It can be drawn by using \texttt{type="battle"} for up to 9 sets. 
+
+
+\begin{figure}[H]\begin{center}
+<<S47battle,fig=TRUE,echo=TRUE,eval=TRUE>>=
+plot(Venn(n=9),type="battle",show=list(SetLabels=FALSE,FaceText=""))
+@
+\caption{The battlement variant of the Edwards construction on 9 sets with the \texttt{type=battle} argument}
+\label{fig:battle}
+\end{center}\end{figure}
+
+
+
+
+
+
+
+
+
+\newpage
+%########################################################
+\section{Weighted Venn diagrams}
+There are repeated requests to generate Venn diagrams in which the areas of the faces
+themselves are meant to carry information, mainly by being proportional to the intersection weights.
+Even when these diagrams can be drawn, 
+they are not often a success in their information-bearing mission. But we can try anyway, through use
+of the argument \texttt{doWeights=TRUE}. First of all we consider the case when all the visible intersection weights are nonzero. 
+
+
+\subsection{Weighted 2-set Venn diagrams for 2 Sets}
+\subsubsection{Circles}
+It is always possible to get an exactly area-weighted solution for two circles 
+as shown in Figure \ref{fig:pv2b2}.
+
+\begin{figure}[H]
+  \begin{center}
+<<pv2b2,fig=TRUE,echo=TRUE>>=
+V3.big <- Venn(SetNames=LETTERS[1:3],Weight=2^(1:8))
+Vmonth2.big <- V3.big[,c(1:2)]
+plot(Vmonth2.big)
+@
+\caption{Weighted 2d Venn}
+\label{fig:pv2b2}
+\end{center}\end{figure}
+
+
+\subsubsection{Squares}
+As for circles, square weight-proportional diagrams 
+can be simply constructed.
+\begin{figure}[H]
+  \begin{center}
+<<sqpv2b,fig=TRUE,echo=TRUE>>=
+plot(Vmonth2.big,type="squares")
+@
+\caption{Weighted 2d Venn squares}
+\end{center}\end{figure}
+
+\newpage
+\subsection{Weighted 3-set Venn diagrams}
+
+
+\subsubsection{Circles}
+There is no general way of creating area-proportional
+3-circle diagrams. While these attempts at these diagrams are quite commonly seen, they must almost always be inexact.
+
+The \texttt{Vennerable} package makes an attempt
+at produce approximate ones. Figure~\ref{fig:combo}
+shows a dataset taken from Chow and Ruskey \cite{chowruskey:2003}
+\begin{figure}[H]
+  \begin{center}
+<<ccomboutransp,fig=TRUE,echo=TRUE>>= 
+Vcombo <- Venn(SetNames=c("Female","Visible Minority","CS Major"),
+	Weight= c(0,4148,409,604,543,67,183,146))
+plot(Vcombo)
+@
+  \caption{ 3D Venn diagram }
+\label{fig:combo}
+  \end{center}
+\end{figure}
+The algorithm used is to compute the individual circles to have the exact area necessary
+for proportionality, and then compute each of the three pairwise distances
+between centres necessary for the correct pairwise areas. If these distances do not satisfy the triangle inequality
+the largest is reduced until they do. Then the circles are arranged with their centres
+separated by these (possibly modified) distances.
+
+
+\newpage
+
+\subsubsection{Squares}
+There is are a number of possible algorithms to generate exact Venn diagrams based on polygons. 
+With \texttt{type=squares} the package uses an algorithm almost identical to that suggested by \citet{chowruskey:2003},
+which tries to generate rectangles as the set boundaries if possible
+
+\begin{figure}[H]\begin{center}
+<<S3ccpdemo1,fig=TRUE>>=
+plot(Vstem3,type="squares")
+@
+\caption{Weighted 3-set Venn diagram based on the algorithm of \cite{chowruskey:2003}}
+\end{center}\end{figure}
+
+\begin{figure}[H]\begin{center}
+<<S3ccpdemo2,fig=TRUE,echo=TRUE>>=
+V3a <- Venn(SetNames=month.name[1:3],Weight=1:8)
+plot(V3a,type="squares",show=list(FaceText="weight",SetLabels=FALSE))
+@
+\caption{Weighted 3-set Venn diagram based on the algorithm of \cite{chowruskey:2003}. This time the algorithm fails to find rectangles.}
+\end{center}\end{figure}
+
+
+\newpage
+
+\subsubsection{Triangles}
+The triangular Venn diagram on 3-sets lends itself nicely to
+an area-proportional drawing under some contraints on the weights (detailed elsewhere).
+
+
+\begin{figure}[H]\begin{center}
+<<plotT3,echo=TRUE,fig=TRUE>>=
+grid::grid.newpage()
+C3t <- compute.Venn(V3a,type="triangles")
+plot(C3t,show=list(SetLabels=FALSE,DarkMatter=FALSE))
+@
+\caption{Weighted Triangular Venn diagram}
+\end{center}
+\end{figure}
+
+\newpage
+
+\subsection{Chow-Ruskey diagrams for 3 or more sets}
+The general Chow-Ruskey algorithm  \cite{chowruskey:2005} for area-proportional faces can be implemented
+in principle for an arbitrary number of sets provided
+the weight of the common intersection is nonzero. In practice the package is limited (to $n=9$) by the size of the largest AWFE diagram it can compute.
+
+
+\begin{figure}[H]\begin{center}
+<<plotCR3,echo=TRUE,fig=TRUE>>=
+plot(V3a,type="ChowRuskey",show=list(SetLabels=FALSE,DarkMatter=FALSE))
+@
+\caption{Chow-Ruskey weighted 3-set diagram}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]\begin{center}
+<<>>=
+@
+<<plotCR4,echo=TRUE,fig=TRUE,cache=TRUE>>=
+V4a <- Venn(SetNames=LETTERS[1:4],Weight=16:1)
+plot(V4a,type="ChowRuskey",show=list(SetLabels=FALSE,DarkMatter=FALSE))
+@
+\caption{Chow-Ruskey weighted 4-set diagram}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[H]\begin{center}
+<<plotCR4stem,echo=FALSE,fig=TRUE,cache=TRUE>>=
+Tstem <- compute.Venn(Vstem,type="ChowRuskey")
+gp <- VennThemes(Tstem,colourAlgorithm="sequential",increasingLineWidth=TRUE)
+plot(Tstem,show=list(SetLabels=TRUE),gp=gp)
+@
+\caption{Chow-Ruskey weighted 4-set diagram for the stem cell data}
+\end{center}
+\end{figure}
+
+
+\newpage
+%########################################################
+\section{Euler diagrams}
+
+A  \emph{Euler diagram} is one in which regions of zero-weight are not displayed at all (but those which are displayed are not necessarily area-proportional).
+This can be achieved, for some geometries, by use of the \texttt{doEuler=TRUE} argument.
+
+As we have seen, for some geometries it is not possible
+to enforce exact area-proportionality when requested by the \texttt{doWeight=TRUE} argument,
+and an attempt is made to produce an approximately area-proportional diagram. In
+particular, regions whose weight is zero may appear with nonzero areas.
+These two flags can interact in weird and uncomfortable ways depending on
+exactly which intersection weights are zero.
+
+\subsection{2-set Euler diagrams}
+
+\subsubsection{Circles}
+<<p2three,echo=FALSE>>=
+p2four <- function(V,type="circles",doFaces=TRUE) {
+	grid::grid.newpage()
+	anlay <- grid.layout(2,1,heights=unit(c(1,1),c("null","lines")))
+	
+	doavp <- function(doWeights,doEuler,type) {
+		C2 <- compute.Venn(V,doWeights=doWeights,doEuler=doEuler,type=type)
+		grid::pushViewport(viewport(layout=anlay))
+		grid::pushViewport(viewport(layout.pos.row=2))
+		txt <- paste(if(doWeights){"Weighted"}else{"Unweighted"},
+				 if (doEuler){"Euler"}else{"Venn"})
+		grid.text(label=txt)
+		popViewport()
+		grid::pushViewport(viewport(layout.pos.row=1))
+	plot(C2,show=list(
+			Sets=!doFaces,
+			SetLabels=FALSE,DarkMatter=FALSE,Faces=doFaces))
+			
+			popViewport()
+		popViewport()
+	}
+
+	grid::pushViewport(viewport(layout=grid.layout(2,2)))
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
+	doavp(FALSE,FALSE,type)
+	upViewport()
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
+	doavp(TRUE,FALSE,type)
+	popViewport()
+	grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=1))
+	doavp(FALSE,TRUE,type)
+	popViewport()
+	grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=2))
+	doavp(TRUE,TRUE,type)
+	popViewport()
+
+}
+p2two <- function(V,type="circles",doFaces=TRUE,doEuler=FALSE,gp,show) {
+	grid::grid.newpage()
+	anlay <- grid.layout(2,1,heights=unit(c(1,1),c("null","lines")))
+	
+	doavp <- function(doWeights,doEuler,type,gp,show) {
+		C2 <- compute.Venn(V,doWeights=doWeights,doEuler=doEuler,type=type)
+		if (missing(gp)) gp <- VennThemes(C2)
+		grid::pushViewport(viewport(layout=anlay))
+		grid::pushViewport(viewport(layout.pos.row=2))
+		txt <- paste(if(doWeights){"Weighted"}else{"Unweighted"},
+				 if (doEuler){"Euler"}else{"Venn"})
+		grid.text(label=txt)
+		popViewport()
+		grid::pushViewport(viewport(layout.pos.row=1))
+		if (missing(show)) show <- list(Sets=TRUE,SetLabels=FALSE,DarkMatter=FALSE,Faces=doFaces)
+		plot(C2,gp=gp,show=show)		
+		popViewport()
+		popViewport()
+	}
+
+	grid::pushViewport(viewport(layout=grid.layout(1,2)))
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
+	doavp(doWeights=FALSE,doEuler=doEuler,type,gp=gp)
+	upViewport()
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
+	doavp(doWeights=TRUE,doEuler=doEuler,type,gp=gp)
+	popViewport()
+}
+
+@
+
+<<setv2,echo=FALSE>>=
+Vmonth2.no01 <- Vmonth2
+Weights(Vmonth2.no01)["01"] <- 0
+Vmonth2.no10 <- Vmonth2
+Weights(Vmonth2.no10)["10"] <- 0
+
+Vmonth2.no11 <- Vmonth2
+Weights(Vmonth2.no11)["11"] <- 0
+
+@
+
+\begin{figure}[H]\begin{center}
+<<p2threef01,fig=TRUE,eval=TRUE>>=
+p2four (Vmonth2.no01,doFaces=TRUE)
+@
+\caption{Effect of the \texttt{doEuler} and \texttt{doWeights} flags for a \texttt{Venn} object with \texttt{Weights(V)["01"]=0}}
+\end{center}\end{figure}
+
+
+\begin{figure}[H]\begin{center}
+<<p2no11threef,fig=TRUE,eval=TRUE>>=
+p2four (Vmonth2.no11,doFaces=TRUE)
+@
+\caption{As before for when the intersection set has zero weight}
+\end{center}\end{figure}
+
+\subsubsection{Squares}
+As for circles, the idea of a weighted Venn diagram when some of the weights
+are zero doesn't make much sense in theory but might be useful for making visual 
+points. 
+\begin{figure}[H]\begin{center}
+<<p2s01threef,fig=TRUE,eval=TRUE>>=
+p2four (Vmonth2.no01,type="squares")
+@
+\end{center}\end{figure}
+
+
+\begin{figure}[H]\begin{center}
+<<p2sthreef,fig=TRUE,eval=TRUE>>=
+p2four (Vmonth2.no11,type="squares")
+@
+\end{center}\end{figure}
+
+\newpage
+\subsection{3-set Euler diagrams}
+
+
+\subsubsection{Circles}
+There is currently no effect of setting \texttt{doEuler=TRUE} for three circles,
+but the \texttt{doWeights=TRUE} flag does an approximate job. There are about
+ 40 distinct ways in which intersection regions can have zeroes can occur, but here are some examples.
+
+
+<<otherV,echo=FALSE>>=
+
+
+Vempty <- VennFromSets( setList[c(4,5,7)])
+Vempty2 <- VennFromSets( setList[c(4,5,11)])
+Vempty3 <- VennFromSets( setList[c(4,5,6)])
+Vempty4 <- VennFromSets( setList[c(9,5,6)])
+
+@
+
+
+\begin{figure}[H]\begin{center}
+<<pv3wempty,fig=TRUE>>=
+showe <- list(FaceText="elements",Faces=FALSE,DarkMatter=FALSE,Universe=FALSE)
+grid::grid.newpage()
+	grid::pushViewport(viewport(layout=grid.layout(2,2)))
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
+	plot(Vempty,add=TRUE,show=showe)
+	upViewport()
+	grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=1))
+	plot(Vempty2,add=TRUE,show=showe)
+	upViewport()
+
+	grid::pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
+	plot(Vempty3,add=TRUE,show=showe)
+	upViewport()
+
+	grid::pushViewport(viewport(layout.pos.row=2,layout.pos.col=2))
+	plot(Vempty4,add=TRUE,show=showe)
+
+
+@
+\caption{Weighted 3d Venn  empty intersections.}
+\end{center}\end{figure}
+
+\begin{figure}[H]
+  \begin{center}
+<<pv3winn,fig=TRUE,cache=TRUE>>=
+plot(Vmonth3,doWeights=TRUE,show=showe)
+@
+\caption{Approximate weighted 3d Venn showing element set membership}
+\end{center}\end{figure}
+
+
+\clearpage
+\subsubsection{Triangles}
+
+
+The \texttt{doEuler} flag has no effect for triangles; all
+the weighted diagrams produced are Euler diagrams.
+\begin{figure}[H]\begin{center}
+<<pv3wempty1t,fig=TRUE,eval=TRUE>>=
+	p2two (Vempty,type="triangles",doEuler=TRUE)
+@
+\caption{3d Venn triangular with two zero weights plotted with the \texttt{doWeights} flag FALSE and TRUE}
+\end{center}\end{figure}
+
+\begin{figure}[H]\begin{center}
+<<pv3wempty2t,fig=TRUE,eval=TRUE>>=
+	p2two (Vempty2,type="triangles",doEuler=TRUE)
+@
+\caption{3d Venn triangular with three zero weights plotted with the \texttt{doWeights} flag FALSE and TRUE}
+\end{center}\end{figure}
+
+\newpage
+\subsection{4-set Euler diagrams}
+\subsubsection{Chow-Ruskey diagrams}
+
+
+The \texttt{doEuler} flag has no effect for Chow-Ruskey because all
+the weighted diagrams produced are already Euler diagrams.
+
+\begin{figure}[H]\begin{center}
+<<CR4fig,fig=TRUE>>=
+V4z <-  VennFromSets( setList[1:4])
+CK4z <- compute.CR(V4z)
+grid::grid.newpage()
+gp <- VennThemes(CK4z,increasingLineWidth=TRUE)
+plot(CK4z,show=list(SetLabels=FALSE,FaceText="elements",Faces=TRUE),gpList=gp)
+@
+\caption{Chow-Ruskey diagram with some zero weights}
+\end{center}\end{figure}
+
+\newpage
+\section{Some loose definitions}
+Figure \ref{fig:canonical} illustrates membership of three sets,
+in order OCT4, SOX2 , NANOG. 
+Genes which are members of the SOX2 set but not the OCT4 or NANOG sets
+are members of an \emph{intersection subset} with \emph{indicator string} or \emph{signature}
+\texttt{010}.
+
+Given $n$ subsets of a universe,
+ there are $2^n$ {intersection subsets}. Each of these is 
+a subset of the universe and there
+is one corresponding to each of the binary strings of length $n$.
+If one of these indicator strings has a 1 in the $i$-th position, all of members of the 
+corresponding intersection subset must be members of the $i$-th subset. Depending on the application, the 
+universe of elements from which members of the sets are drawn 
+may be important. 
+Elements in intersection set \texttt{00\ldots}, which are in 
+the universe but not in any known set, are called (by me) \emph{dark matter},
+and we tend to display these differently.
+
+A diagram which produces a visualisation of each of the sets
+as a connected curve in the plane whose regions of intersection
+are connected and correspond to each of the $2^n$ intersection subsets
+is an \emph{unweighted Venn diagram}.
+Weights can be assigned to each of the intersections,
+most naturally being proportional to the number of elements each one contains.
+\emph{Weighted Venn diagrams} have the same topology as unweighted ones, but 
+(attempt to) make the area of each region proportional to the weights. 
+This may not be possible, if any of the weights are zero for example, or because 
+of the geometric constraints of the diagram. Venn diagrams based on 3 circles
+are unable in general to represent even nonzero weights exactly, and cannot be constructed
+at all for $n>3$.
+
+Diagrams in which only those intersections with non-zero weight appear are \emph{Euler diagrams},
+and diagrams which go further and make the area of every intersection proportional to its weight are weighted Euler diagrams.
+For more details and rather more rigour see first the online review of Ruskey and Weston~\cite{ruskeyweston:2005} and then the references it contains.
+
+\newpage
+
+
+\section{This document}
+
+\begin{tabular}{|l|l|}
+\hline
+Author & Jonathan Swinton
+\\
+SVN id of this document & ${}$Id: Venn.Rnw 80 2013-07-24 22:13:34Z js229 ${}$.
+\\
+Generated on & \today
+\\
+R version & 
+<<echo=FALSE,results=tex>>=
+cat(R.version.string)
+@
+\\
+\hline
+\end{tabular}
+
+\bibliographystyle{plain}
+
+<<echo=FALSE,results=tex,eval=TRUE>>= 
+# tilde from shortened windows pathname really upsets latex....
+#bib <- system.file( "doc", "Venn.bib", package = "Vennerable" )
+#bib <- gsub("~","\\~",bib,fixed=TRUE)
+bib <- "Venn"
+cat( "\\bibliography{",bib,"}\n",sep='')
+@
+%\bibliography{Venn}
+
+\end{document}

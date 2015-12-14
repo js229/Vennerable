@@ -1,0 +1,852 @@
+%**************************************************************************
+%
+% # $Id: VennDrawingTest.Rnw 82 2013-07-24 22:16:12Z js229 $
+%\VignetteIndexEntry{Details of the VennDrawing object for the developer only}
+
+<<defmakeme,echo=FALSE,eval=FALSE>>=
+makeme <- function() {
+	setwd("C:/Users/Dad/documents/Vennerable/pkg/Vennerable/inst/doc")
+	Sweave("VennDrawingTest.Rnw",stylepath=FALSE)
+}
+makeme()
+@
+
+% $Revision: 1.7 $
+% $Author: js229 $
+% $Date: 2013-07-24 23:16:12 +0100 (Wed, 24 Jul 2013) $
+%
+% $Log: Vennville.Rnw,v $
+
+\documentclass[a4paper]{article}
+
+
+\title{
+Venn diagrams 
+\\
+Technical details and 
+regression checks
+}
+\author{Jonathan Swinton}
+
+\usepackage{Sweave}
+\SweaveOpts{prefix.string=VDT,cache=TRUE,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
+\usepackage{natbib}
+\usepackage{mathptmx}
+\usepackage{rotating} 
+\usepackage{float} 
+\usepackage[nodayofweek]{datetime}\longdate
+\usepackage{hyperref}
+\begin{document}
+
+
+\maketitle
+
+\begin{itemize}
+\item Try CR for weight=0
+\item Plot faces for Chow-Ruskey
+\item General set membership
+\item implement not showing dark matter eg Fig 1
+\item AWFE-book like figures
+\item  likesquares argument for triangles
+\item  central dark matter
+\item Comment on triangles
+\item Comment on AWFE
+\item text boxes
+\item use grob objects/printing properly
+\item cope with missing data including missing zero intersection; 
+\item discuss Chow-Ruskey zero=nonsimple 
+
+\end{itemize}
+
+<<doremove,echo=FALSE>>=
+remove(list=setdiff(ls(),"makeme"));
+@
+
+<<loadmore,echo=FALSE>>=
+options(width=80)
+@
+\section{Venn objects}
+
+<<defcombo,echo=TRUE>>=
+if ("package:Vennerable" %in% search()) detach("package:Vennerable")
+library(Vennerable)
+library(grid)
+@
+
+
+<<mvn1,echo=TRUE>>=
+Vcombo <- Venn(SetNames=c("Female","Visible Minority","CS Major"),
+	Weight= c(0,4148,409,604,543,67,183,146)
+)
+setList <- strsplit(month.name,split="")
+names(setList) <- month.name
+VN3 <- VennFromSets( setList[1:3])
+V2 <- VN3[,c("January","February"),]
+@
+
+<<checkV,echo=FALSE>>=
+stopifnot(NumberOfSets(V2)==2)
+@
+
+<<V4,echo=TRUE>>=
+V4 <-  VennFromSets( setList[1:4])
+V4f <- V4
+V4f@IndicatorWeight[,".Weight"] <- 1
+@
+
+<<mvn,echo=TRUE>>=
+setList <- strsplit(month.name,split="")
+names(setList) <- month.name
+VN3 <- VennFromSets( setList[1:3])
+V2 <- VN3[,c("January","February"),]
+@
+<<echo=TRUE>>=
+V3.big <- Venn(SetNames=month.name[1:3],Weight=2^(1:8))
+V2.big <- V3.big[,c(1:2)]
+@
+
+<<otherV,echo=TRUE>>=
+
+
+Vempty <- VennFromSets( setList[c(4,5,7)])
+Vempty2 <- VennFromSets( setList[c(4,5,11)])
+Vempty3 <- VennFromSets( setList[c(4,5,6)])
+
+@
+
+\section{The VennDrawing object}
+This is created from a \texttt{TissueDrawing} object and a \texttt{Venn} object
+<<testVD,echo=TRUE>>=
+centre.xy <- c(0,0)
+VDC1 <- newTissueFromCircle(centre.xy,radius=2,Set=1); 
+VDC2 <- newTissueFromCircle(centre.xy+c(0,1.5),radius=1,Set=2)
+TM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
+VD2 <- new("VennDrawing",TM,V2)
+
+@
+\begin{figure}[H]\begin{center}
+
+<<shoDV,fig=TRUE>>=
+grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
+makevp.eqsc(c(-4,4),c(-4,4))
+grid.xaxis()
+grid.yaxis()
+PlotFaces(VD2)
+PlotSetBoundaries(VD2,gp=gpar(lwd=2,col=c("red","blue","green")))
+PlotNodes(VD2)
+
+@
+\end{center}\end{figure}
+
+
+\section{Two circles}
+\subsection{Two circles}
+\begin{figure}[H]\begin{center}
+<<C2show,fig=TRUE,echo=FALSE>>=
+ r <- c(0.8,0.4)
+ d.origin <- 0.5
+ d <- 2*d.origin
+ C2 <- TwoCircles(r=r,d=d,V=V2)
+ C2 <- .square.universe(C2,doWeights=FALSE)
+ centres <- matrix(c(-d/2,0,d/2,0),ncol=2,byrow=TRUE)
+
+ # use notation from Mathworld http://mathworld.wolfram.com/Circle-CircleIntersection.html
+ d1 <- (d^2 - r[2]^2+ r[1]^2) /( 2* d)
+ d2 <- d - d1
+ y <- (1/(2*d))* sqrt(4*d^2*r[1]^2-(d^2-r[2]^2+r[1]^2)^2)
+
+
+ grid.newpage()
+ pushViewport(viewport(layout=grid.layout(2,1)))
+	pushViewport(viewport(layout.pos.row=1))
+
+ PlotVennGeometry(C2,show=(list(FaceText="",SetLabels=FALSE)))
+ downViewport(name="Vennvp")
+ grid.xaxis()
+ grid.yaxis()
+ 
+
+ grid.segments(x0=centres[1,1],x1=centres[1,1]+d1,y0=0,y1=0,default.units="native")
+ grid.segments(x0=centres[2,1],x1=centres[2,1]-d2,y0=0,y1=0,default.units="native")
+ grid.segments(x0=centres[1,1]+d1,x1=centres[1,1]+d1,y0=0,y1=y,default.units="native")
+ grid.segments(x0=centres[1,1],x1=centres[1,1]+d1,y0=0,y1=y,default.units="native")
+ grid.segments(x0=centres[2,1],x1=centres[2,1]-d2,y0=0,y1=y,default.units="native")
+ grid.text(x=c(-.2,0.4,0.2,-0.2,0.43),y=c(-0.05,-.05,0.2,0.17,0.17),
+	label=c(expression(d[1]),expression(d[2]),"y",expression(r[1]),expression(r[2])),default.units="native")
+ UpViewports()
+popViewport()
+	pushViewport(viewport(layout.pos.row=2))
+Cr <- c(0.8,0.4)
+  d <- .5
+ C2 <- TwoCircles(r=r,d=d,V2)
+  centres <- matrix(c(-d/2,0,d/2,0),ncol=2,byrow=TRUE)
+C2 <- .square.universe(C2,doWeights=FALSE)
+ # use notation from Mathworld http://mathworld.wolfram.com/Circle-CircleIntersection.html
+ d1 <- (d^2 - r[2]^2+ r[1]^2) /( 2* d)
+ d2 <- d - d1
+ y <- (1/(2*d))* sqrt(4*d^2*r[1]^2-(d^2-r[2]^2+r[1]^2)^2)
+
+ PlotVennGeometry(C2,show=(list(FaceText="",SetLabels=FALSE)))
+ downViewport(name="Vennvp")
+ grid.xaxis()
+ grid.yaxis()
+ 
+
+ grid.segments(x0=centres[1,1],x1=centres[1,1]+d1,y0=0,y1=0,default.units="native")
+ grid.segments(x0=centres[2,1],x1=centres[2,1]-d2,y0=0,y1=0,default.units="native")
+ grid.segments(x0=centres[1,1]+d1,x1=centres[1,1]+d1,y0=0,y1=y,default.units="native")
+ grid.segments(x0=centres[1,1],x1=centres[1,1]+d1,y0=0,y1=y,default.units="native")
+ grid.segments(x0=centres[2,1],x1=centres[2,1]-d2,y0=0,y1=y,default.units="native")
+ grid.text(x=c(0,0.4,0.5,0.05,0.4),y=c(-0.05,-.05,0.2,0.17,0.17),
+	label=c(expression(d[1]-d[2]),expression(d[2]),
+		"y",expression(r[1]),expression(r[2])),default.units="native")
+UpViewports()
+
+popViewport()
+
+@
+\caption{Geometry of two overlapping circles}
+\label{fig:g2c}
+\end{center}\end{figure}
+
+
+There is an intersection if $|r_1-r_2|<d<r_1+r_2$. If so and $d<\max(r_1,r_2)$
+ the centre of the smaller circle is 
+in the interior of the larger.
+Either way we have the relationships
+\begin{eqnarray*}
+		d_1^2+y^2 &=& r_1^2 
+\\
+	 	d_2^2+ y^2 &=& r_2^2 
+\end{eqnarray*}
+If $\max(r_1,r_2)<d<r_1+r_2$ then $d=d_1+d_2$;
+ if $|r_1-r_2| < d<\max(r_1,r_2)$ then $d=|d_1-d_2|$.
+
+We rely on the relationships
+\begin{eqnarray*}
+		d_1 &=&(d^2 - r_2^2+ r_1^2) /( 2 d)
+\\
+	 	d_2  &=& |d - d_1|
+\\
+		y &=& \frac{1}{2 d} \sqrt{4 d^2 r_1^2-(d^2-r_2^2+r_1^2)^2}	
+\\
+&=& \sqrt{r_1^2-d_1^2}
+\end{eqnarray*}
+
+\clearpage
+\subsection{Weighted 2-set Venn diagrams for 2 Sets}
+\subsubsection{Circles}
+It is always possible to get an exactly area-weighted solution for two circles 
+as shown in Figure \ref{fig:pv2b2}.
+
+<<chkareas>>=
+checkAreas <- function(object) {
+	wght <- Weights(object)
+	ares <- Areas(object)
+	allareas <- NA*wght
+	allareas[names(ares)] <- ares
+	allareas<- allareas[names(wght)]
+	res <- data.frame(cbind(Area=allareas,Weight=wght))
+	res$IndicatorString <- names(wght)
+	res <- subset(res,IndicatorString != dark.matter.signature(object) & !( Weight==0 & abs(Area)<1e-4))
+	res$Density <- res$Area/res$Weight
+	res <- subset(res, abs(log10(Density))>log10(1.1))
+	if(nrow(res)>0) { print(res);stop("Area check failed")}
+	print("Area check passed")
+}
+@
+
+\begin{figure}[H]
+  \begin{center}
+<<pv2b2,fig=TRUE>>=
+C2.big <- compute.C2(V=V2.big,doWeights=TRUE,doEuler=TRUE)
+grid.newpage()
+PlotVennGeometry(C2.big)
+Areas(C2.big)
+checkAreas(C2.big)
+plot(V2.big)
+@
+\caption{Weighted 2d Venn}
+\label{fig:pv2b2}
+\end{center}\end{figure}
+
+
+\subsection{2-set Euler diagrams}
+
+\subsubsection{Circles}
+<<p2three,echo=FALSE>>=
+p2four <- function(V,type="circles",doFaces=FALSE) {
+	grid.newpage()
+	anlay <- grid.layout(2,1,heights=unit(c(1,1),c("null","lines")))
+	
+	doavp <- function(doWeights,doEuler,type) {
+		C2 <- compute.Venn(V,doWeights=doWeights,doEuler=doEuler,type=type)
+		pushViewport(viewport(layout=anlay))
+		pushViewport(viewport(layout.pos.row=2))
+		txt <- paste(if(doWeights){"Weighted"}else{"Unweighted"},
+				 if (doEuler){"Euler"}else{"Venn"})
+		grid.text(label=txt)
+		popViewport()
+		pushViewport(viewport(layout.pos.row=1))
+		PlotVennGeometry(C2,show=list(
+			Sets=!doFaces,
+			SetLabels=FALSE,DarkMatter=FALSE,Faces=doFaces))
+		downViewport("Vennvp")
+		PlotNodes(C2)
+		UpViewports()	
+			
+			popViewport()
+		popViewport()
+	}
+
+	pushViewport(viewport(layout=grid.layout(2,2)))
+	pushViewport(viewport(layout.pos.row=1,layout.pos.col=1))
+	doavp(FALSE,FALSE,type)
+	upViewport()
+	pushViewport(viewport(layout.pos.row=1,layout.pos.col=2))
+	doavp(TRUE,FALSE,type)
+	popViewport()
+	pushViewport(viewport(layout.pos.row=2,layout.pos.col=1))
+	doavp(doWeights=FALSE,doEuler=TRUE,type)
+	popViewport()
+	pushViewport(viewport(layout.pos.row=2,layout.pos.col=2))
+	doavp(doWeights=TRUE,doEuler=TRUE,type)
+	popViewport()
+
+}
+@
+
+
+<<setv2,echo=FALSE>>=
+V2.no01 <- V2
+Weights(V2.no01)["01"] <- 0
+V2.no10 <- V2
+Weights(V2.no10)["10"] <- 0
+
+V2.no11 <- V2
+Weights(V2.no11)["11"] <- 0
+C2.no10 <- compute.C2(V2.no10)
+Areas(C2.no10)
+@
+
+\begin{figure}[H]\begin{center}
+<<p2threef01,fig=TRUE>>=
+#C2.no01 <- compute.C2(V=V2.no01,doEuler=TRUE,doWeights=TRUE)
+p2four (V=V2.no01,doFaces=TRUE)
+@
+\caption{Effect of the Euler and \texttt{doWeights} flags.}
+\end{center}\end{figure}
+
+
+
+
+\begin{figure}[H]\begin{center}
+<<p2no11threef,fig=TRUE>>=
+p2four (V2.no11,doFaces=TRUE)
+#compute.Venn(V=V2.no11, doWeights = FALSE, doEuler = TRUE,  type = "circles")
+#compute.C2(V=V2.no11, doWeights = FALSE, doEuler = TRUE)
+@
+\caption{As before for a different set of weights}
+\end{center}\end{figure}
+
+
+\begin{figure}[H]\begin{center}
+<<p2no10threef,fig=TRUE>>=
+p2four (V2.no10,doFaces=TRUE)
+#C2 <- compute.C2(V=V2.no10, doWeights = FALSE, doEuler = TRUE)
+@
+\caption{As before for a different set of weights}
+\end{center}\end{figure}
+
+\section{Two squares}
+\begin{figure}[H]\begin{center}
+<<sqpv2b,fig=TRUE>>=
+plot(V2,type="squares")
+@
+\end{center}\end{figure}
+
+\subsubsection{Weights}
+\begin{figure}[H]\begin{center}
+<<s2big,fig=TRUE>>=
+S2.big <- compute.S2(V2.big,doWeights=TRUE,doEuler=TRUE)
+grid.newpage()
+PlotVennGeometry(S2.big)
+Areas(S2.big)
+@
+\end{center}\end{figure}
+
+\subsubsection{Squares}
+
+\begin{figure}[H]\begin{center}
+<<p2s01threef,fig=TRUE>>=
+C2.no01 <- compute.S2(V=V2.no01,doWeights=FALSE,doEuler=FALSE)
+#plotNodes(C2.no01)
+p2four (V2.no01,type="squares")
+@
+\end{center}\end{figure}
+
+
+\begin{figure}[H]\begin{center}
+<<p2sthreef,fig=TRUE>>=
+C2.no11 <- compute.S2(V=V2.no11,doWeights=FALSE,doEuler=TRUE)
+
+p2four (V2.no11,type="squares")
+@
+\end{center}\end{figure}
+
+\begin{figure}[H]\begin{center}
+<<p2sthreeffs,fig=TRUE>>=
+S2.no10 <- compute.S2(V2.no10)
+grid.newpage()
+PlotVennGeometry(S2.no10)
+downViewport("Vennvp")
+PlotNodes(S2.no10)
+Areas(S2.no10)
+
+p2four (V2.no10,type="squares")
+@
+\end{center}\end{figure}
+
+
+
+\newpage
+\section{Three circles}
+
+<<C3>>=
+r=0.6
+d=0.4
+V=Vcombo
+#C3 <- ThreeCircles (r=d,d=d,V=V)
+#grid.newpage()
+#PlotVennGeometry(C3)
+C3 <- compute.C3(Vcombo)
+#PlotVennGeometry(C3)
+@
+
+\begin{figure}[H]\begin{center}
+<<pVN3,echo=TRUE,fig=TRUE,cache=TRUE>>=
+plot(Vcombo,doWeights=FALSE,show=list(Faces=TRUE))
+@
+\caption{A three-circle Venn diagram} 
+\label{fig:canonical}
+\end{center}\end{figure}
+
+\subsubsection{Weights}
+There is no general way of creating area-proportional
+3-circle diagrams. The package makes an attempt
+to produce approximate ones.
+
+\begin{figure}[H]
+  \begin{center}
+<<ccomboutransp,fig=TRUE>>= 
+C3combo <- compute.C3(Vcombo,doWeights=TRUE)
+grid.newpage()
+PlotVennGeometry(C3combo)
+Areas(C3combo)
+checkAreas(C3combo)
+
+@
+  \caption{ 3D Venn diagram. All of the areas are correct to within 10\% }
+  \end{center}
+\end{figure}
+
+
+<<Vdemo,echo=FALSE>>=
+V3 <- Venn(SetNames=month.name[1:3])
+Weights(V3) <- c(0,81,81,9,81,9,9,1)
+V3a <- Venn(SetNames=month.name[1:3],Weight=1:8)
+
+@
+
+
+
+
+
+\section{Three Triangles}
+The triangular Venn diagram on 3-sets lends itself nicely to
+an area-proportional drawing under some contrainsts on the weights
+
+\begin{figure}[H]\begin{center}
+<<plotT3,echo=FALSE,fig=TRUE>>=
+T3a <- compute.T3(V3a)
+grid.newpage()
+PlotVennGeometry(T3a ,show=list(FaceText="signature"))
+downViewport("Vennvp")
+#PlotNodes(T3a )
+checkAreas(T3a )
+@
+\caption{Triangular Venn with external universe}
+\end{center}
+\end{figure}
+
+
+\subsection{Triangular Venn diagrams}
+
+\subsubsection{Triangles}
+\begin{figure}[H]\begin{center}
+<<pv3wempty1t,fig=TRUE>>=
+TN3 <- compute.T3(VN3)
+
+grid.newpage()
+PlotVennGeometry(TN3)
+
+Areas(TN3)
+@
+\caption{3d Venn triangular with one  empty intersection}
+\end{center}\end{figure}
+
+\begin{figure}[H]\begin{center}
+<<pv3wempty2t,fig=TRUE>>=
+	p2four (Vempty2,type="triangles")
+@
+\caption{3d Venn triangular with two  empty intersection}
+\end{center}\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+<<tv,fig=TRUE,echo=FALSE>>=
+grid.newpage()
+pushViewport(dataViewport( xData= c(-1,1),yData=c(-1,1),name="plotRegion"))
+x <- c( -.7, .1, .4)
+y <- c(-.4,-.3,.6)
+grid.polygon(x,y,default.units="native")
+grid.text(x=x+c(-0.05,0,0.05),y=y,c("A","B","C"),default.units="native",just="left")
+sab <- c(0.3 ,0.4, 0.5)
+xmp <- x * sab + (1-sab) * x[c(2,3,1)]
+ymp <- y * sab + (1-sab) * y[c(2,3,1)]
+grid.points(x=xmp,y=ymp,pch=20,default.units="native")
+grid.polygon(x=xmp,y=ymp,gp=gpar(lty="dotted"),default.units="native")
+grid.text (x=(x+xmp)/2+c(0,0.05,0),y=(y+ymp)/2+c(-.05,0,0.05),label=c(expression(s[c] *c),expression(s[a] *a),expression(s[b] *b)),default.units="native")
+@
+\end{center}\end{figure}
+Given a triangle $ABC$ of area $\Delta$ and some nonnegative weights $w_a+w_b+w_c<1$
+ we want to set $s_c$, $s_a$ and $s_b$ so that the areas of each of the apical triangles
+are $\Delta$-proportional to $w_a$, $w_b$ and $w_c$.
+This means
+\begin{eqnarray}
+ s_c (1-s_b) bc \sin A &=& 2 w_a \Delta
+\\
+s_a (1-s_c) ca  \sin B &=& 2 w_b \Delta
+\\
+s_b (1-s_a) ab \sin C &=& 2 w_c \Delta
+\end{eqnarray}
+So \begin{eqnarray}
+ s_c (1-s_b) &=& w_a
+\\
+s_a (1-s_c) &=& w_b
+\\
+s_b (1-s_a) &=& w_c
+\end{eqnarray}
+\begin{eqnarray}
+ s_b  &=&  1- w_a/s_c
+\\
+s_a  &=&  w_b/(1-s_c)
+\\
+(s_c-w_a) ( 1-s_c-w_b) &=&  s_c(1-s_c)w_c
+\end{eqnarray}
+\begin{eqnarray}
+ s_c^2 (1-w_c) +s_c (w_b+w_c-w_a-1) +w_a(1-w_b) &=&0
+\end{eqnarray}
+
+Iff
+\begin{eqnarray}
+4 w_a w_b w_c  < (1 -  (w_a+w_b+w_c))^2
+\end{eqnarray}
+this has two real solutions between $w_a$ and $1-w_b$.
+
+<<>>=
+.inscribetriangle.feasible(rep(0.25,3))
+@
+
+<<tv3,fig=TRUE>>=
+T3 <- compute.T3(Vempty,doWeights=FALSE)
+grid.newpage()
+PlotVennGeometry(T3,show=list(FaceText="signature"))
+@
+
+
+\subsection{Three triangles}
+<<threet,echo=FALSE,results=hide>>=
+T3a <- compute.T3(V3a)
+VisibleRange(T3a)
+Areas(T3a)
+
+T3.big <- compute.T3(V3.big)
+T3a <- (compute.T3(V3a))
+TN <- compute.T3(VN3)
+TCombo <- try(compute.T3(Vcombo))
+
+@
+
+\begin{figure}[H]\begin{center}
+<<plotT3d,echo=FALSE,fig=TRUE>>=
+
+grid.newpage()
+PlotVennGeometry(T3a,show=list(FaceText="signature"))
+@
+\end{center}
+\end{figure}
+
+\section{Three Squares}
+This is a version of the algorithm suggested by Chow Ruskey 2003.
+\begin{figure}[H]\begin{center}
+<<S3ccpdemo,fig=TRUE>>=
+S3a <- compute.S3(V3a,doWeights=TRUE)
+grid.newpage()
+PlotVennGeometry(S3a,show=list(FaceText="signature"))
+downViewport("Vennvp")
+PlotNodes(S3a)
+checkAreas(S3a)
+@
+\caption{Weighted 3-set Venn diagram based on the algorithm of \citet{chowruskey:2003}}
+\end{center}\end{figure}
+
+
+\subsection{Three squares}
+
+\begin{figure}[H]\begin{center}
+<<plotS3d,echo=FALSE,fig=TRUE>>=
+S3a <- compute.S3(V3a)
+PlotVennGeometry(S3a)
+@
+
+\end{center}\end{figure}
+
+
+\section{Four squares}
+\subsection{Unweighted 4-set Venn diagrams}
+
+\begin{figure}[H]\begin{center}
+
+<<S4demoff,fig=TRUE,echo=FALSE>>=
+S4  <- compute.S4(V4,s=0.2,likeSquares=TRUE)
+grid.newpage()
+CreateViewport(S4)
+PlotSetBoundaries(S4)
+PlotIntersectionText (S4,element.plot="elements")
+PlotNodes(S4)
+
+@
+\end{center}\end{figure}
+
+\clearpage
+
+
+
+
+
+\section{Chow-Ruskey}
+See \cite{chowruskey:2005,chowruskey:2003}.
+<<>>=
+plot.grideqsc <- function (gridvals) {
+	for (x in gridvals) {
+		grid.segments(x0=min(gridvals),x1=max(gridvals),y0=x,y1=x,gp=gpar(col="grey"),default.units="native")
+		grid.segments(x0=x,x1=x,y0=min(gridvals),y1=max(gridvals),gp=gpar(col="grey"),default.units="native")
+	}
+}
+
+plot.gridrays  <- function(nSets,radius=3) {	
+	k <- if (nSets==3) {6} else {12}
+	angleray <- 2*pi / (2*k)
+	# the area between two rays at r1 r2 is (1/2) r1 * r2 * sin angleray
+	angles <- angleray * (seq_len(2*k)-1)
+	for (angle in angles) {
+		x <- radius*c(0,cos(angle));y <- radius* c(0,sin(angle))
+		grid.lines( x=x,y=y,default.unit="native",gp=gpar(col="grey"))
+	}
+}
+
+sho4 <- function(CR4) {
+	grid.newpage()
+	PlotVennGeometry(CR4 ,show=list(FaceText="signature",SetLabels=FALSE))
+	downViewport("Vennvp")
+	plot.grideqsc(-4:4)
+	plot.gridrays(NumberOfSets(CR4),radius=5)
+}
+@
+
+
+
+
+
+\subsection{Chow-Ruskey diagrams for 3  sets}
+
+\begin{figure}[H]\begin{center}
+<<pCR3,fig=TRUE>>=
+CR3 <- compute.CR(V3)
+checkAreas(CR3)
+
+sho4(CR3 )
+@
+\end{center}\end{figure}
+
+\begin{figure}[H]\begin{center}
+<<pCR3f,fig=TRUE>>=
+CR3f <- compute.CR(V3a)
+sho4(CR3f )
+checkAreas(CR3f )
+@
+\caption{Chow-Ruskey CR3f}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[H]\begin{center}
+<<>>=
+V4a <- Venn(SetNames=month.name[1:4],Weight=1:16)
+@
+<<plotCR4,echo=FALSE,fig=TRUE>>=
+CR4a <-  compute.CR(V4a)
+grid.newpage()
+PlotVennGeometry(CR4a ,show=list(FaceText="signature"))
+checkAreas(CR4a )
+@
+\caption{Chow-Ruskey weighted 4-set diagram, produces an error if we try to plot signature face text}
+\end{center}
+\end{figure}
+
+
+
+\begin{figure}[H]\begin{center}
+<<plotCR4www,echo=FALSE,fig=TRUE>>=
+V4W <- Weights(V4a)
+V4W[!names(V4W) %in% c("1011","1111","0111")] <- 0
+V4W["0111"] <- 10
+V4W["1011"] <- 5
+V4w <- V4a
+Weights(V4w) <- V4W
+CR4w <-  compute.CR(V4w)
+checkAreas(CR4w )
+
+#grid.newpage()
+#
+sho4(CR4w)
+angleray <- 2*pi / (2*12)
+inr <- 2.26; outr=4.4
+grid.text(x=inr *cos(angleray),y=inr *sin(angleray),label="r1",default.units="native")
+grid.text(x=1.5 *cos(angleray/2),y=1.5*sin(angleray/2),label="phi",default.units="native")
+grid.text(x=inr *cos(0),y=inr *sin(0),label="r2",default.units="native")
+grid.text(x=outr *cos(0),y=outr *sin(0),label="s2",default.units="native")
+grid.text(x=3*cos(0),y=3*sin(0),label="delta",default.units="native")
+grid.text(x=inr *cos(-angleray),y=inr *sin(-angleray),label="r3",default.units="native")
+grid.text(x=inr *cos(-7*angleray),y=inr *sin(-7*angleray),label="r[n]",default.units="native")
+grid.text(x=outr *cos(-angleray),y=outr *sin(-angleray),label="s3",default.units="native")
+grid.text(x=3*cos(-angleray),y=3*sin(-angleray),label="delta",default.units="native")
+
+@
+\caption{Chow-Ruskey weighted 4-set diagram}
+\end{center}
+\end{figure}
+
+\newcommand{\jhalf}{\frac{1}{2}}
+The area of the sector $0r_1r_2$ is $\jhalf r_1 r_2 \sin\phi$.
+ The area of $0r_1s_2$ is
+$\jhalf (r_1 (r_2+\delta) \sin\phi)$ and so the area
+ of $r_1 r_2 s_2$ is $\jhalf(r_1\delta\sin\phi)$.
+
+The area of $r_2 r_2 s_2 s_3$ is
+ $\jhalf[(r_3+\delta)(r_2+\delta)-r_3 r_2) \sin\phi
+=\jhalf[(r_3+r_2)\delta+\delta^2] \sin\phi$.
+
+The total area of the outer shape is
+\begin{eqnarray}
+A &=& \jhalf(\sin\phi) \left [  (r_1 + r_n)\delta+\sum_{k=2}^{n-2}[ (r_{k+1}+r_k)\delta + \delta^2 ] \right]
+\\
+&=& \jhalf(\sin\phi) \left [  (r_1 + r_n)\delta+ (n-2)\delta^2 + \delta \sum_{k=2}^{n-2}[ (r_{k+1}+r_k) ] \right]
+\\
+&=& \jhalf(\sin\phi) \left[ (r_1+r_2+2r_3+ \ldots + 2 r_{n-2} + r_{n-1}+r_n) \delta + (n-3)\delta^2 \right]
+\end{eqnarray}
+so
+\begin{eqnarray}
+0 &=& c_a \delta^2+ c_b \delta + c_c 
+\\
+c_a &=& n-3
+\\
+c _b &=& r_1+r_2+2r_3+ \ldots + 2 r_{n-2} + r_{n-1}+r_n
+\\
+c_c &=& -A/\jhalf \sin\phi
+\end{eqnarray}
+
+This is implemented in the compute.delta function.
+
+If all the $r$s are the same then $c_b=[2(n-3)+4]r=(2n-2)r$.
+
+
+\begin{figure}[H]\begin{center}
+<<CR4fig,fig=TRUE>>=
+CK4 <- compute.CR(V4)
+grid.newpage()
+PlotVennGeometry(CK4,show=list(FaceText="weight",SetLabels=FALSE))
+checkAreas(CK4)
+@
+\end{center}\end{figure}
+
+\begin{figure}[H]\begin{center}
+<<pCR4,fig=TRUE>>=
+CR4f <- compute.CR(V4f)
+sho4(CR4f )
+@
+\caption{Chow-Ruskey 4}
+\end{center}
+\end{figure}
+
+
+
+\section{Euler diagrams}
+\newpage
+\subsection{3-set Euler diagrams}
+
+
+\subsubsection{Other examples of circles}
+\begin{figure}[H]
+  \begin{center}
+<<pv2b,fig=TRUE>>=
+plot(V3.big,doWeights=TRUE)
+@
+\caption{TODO Big weighted 3d Venn fails}
+\end{center}\end{figure}
+
+
+%########################################################
+\clearpage
+\newpage
+%########################################################
+
+\section{Error checking}
+These should fail
+<<echeck,echo=TRUE>>=
+print(try(Venn(numberOfSets=3,Weight=1:7)))
+print(try(V3[1,]))
+@
+
+Empty objects work
+<<nullV,echo=TRUE>>=
+V0 = Venn()
+(Weights(V0))
+VennSetNames(V0)
+@
+
+
+
+\section{This document}
+
+\begin{tabular}{|l|l|}
+\hline
+Author & Jonathan Swinton
+\\
+SVN id of this document & ${}$Id: VennDrawingTest.Rnw 82 2013-07-24 22:16:12Z js229 ${}$.
+\\
+Generated on & \today
+\\
+R version & 
+<<echo=FALSE,results=tex>>=
+cat(R.version.string)
+@
+\\
+\hline
+\end{tabular}
+
+\bibliographystyle{plain}
+\bibliography{./Venn}
+
+\end{document}

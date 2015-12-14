@@ -1,0 +1,117 @@
+<<eval=FALSE,echo=FALSE>>=
+makeme <- function() {
+	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
+	library(weaver);
+	Sweave(driver=weaver,"Euler3Sets.Rnw",stylepath=FALSE,use.cache=FALSE)
+}
+makeme()
+@
+\documentclass[a4paper]{article}
+%\usepackage{natbib}
+\title{
+Distinct patterns
+for zeroes in Euler diagrams
+on three sets
+}
+\author{Jonathan Swinton}
+
+\usepackage{Sweave}
+\SweaveOpts{debug=TRUE,eps=FALSE,echo=TRUE}
+%\VignetteIndexEntry{Internal use only}
+
+
+\usepackage{mathptmx}
+\usepackage{rotating} 
+\usepackage[nodayofweek]{datetime}\longdate
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{fancyhdr}
+\begin{document}
+
+\maketitle\thispagestyle{fancy}
+
+This vignette does not need to be read to understand the \texttt{Vennerable} package.
+
+
+The Euler diagram on three sets has seven regions
+which are not dark matter. If the weight associated 
+to the region is zero, we do not want to display the
+region. The number of possible patterns of zeros
+is $2^7=\Sexpr{2^7}$ but many of these patterns
+are symmetric under a relabelling of the original sets.
+
+How many distinct zero-patterns are there, allowing set relabelling?
+
+<<c0>>=
+library(Vennerable)
+library(xtable)
+library(grid)
+Eclass <-EulerClasses(n=3)
+Ehave3 <- subset(Eclass,SetsRepresented==3 , -SetsRepresented)
+Ehave <- subset(Eclass, ESignature==ESignatureCanonical,-ESignatureCanonical)
+
+@
+There are \Sexpr{nrow(Ehave)} patterns with all sets
+represented
+<<c2,results=tex>>=
+print(xtable(Ehave,digits=0),size="small"
+)
+@
+
+<<c1,eval=TRUE>>=
+E3List <- lapply(Ehave3$ESignature,function(VS){
+	Weights <- t(Ehave3[Ehave3$ESignature==VS,2:8])[,1]
+	Weights["000"] <- 0
+	Weights <- Weights[order(names(Weights))]
+	Weights
+})
+names(E3List) <- Ehave3$ESignature
+
+
+V3List <- list()
+efails <- lapply(names(E3List),function(x) {
+	V <- Venn(Weight=E3List[[x]],SetNames=LETTERS[1:3])
+	res <- try(compute.Venn(V))
+	V3List[[x]] <<- res
+	return (inherits(res,"try-error"))
+	})
+names(efails) <- names(E3List)
+
+
+sho <- function(enames) {
+  #if (efails[[ename]]) { cat("I");return()}
+  grid.newpage()
+  pushViewport(viewport(layout=grid.layout(10,11)))
+  for(i in 1:11) { for (j in 1:10) {
+    #cat (i, " ", j,"\n")
+    ix = (i-1)*10+(j-1)+1;
+    if (ix>length(enames)){return()};
+    ename <- enames[[ ix]];
+    pushViewport(viewport(layout.pos.col=i,layout.pos.row=j))
+    if(!efails[[ename]]){
+    plot(V3List[[ename]],
+       show=list(Universe=FALSE,FaceText="",SetLabels=FALSE,Faces=FALSE))
+    }
+    popViewport()
+  #grid.text(ename)
+  }}
+}
+
+@
+
+
+\begin{figure}[H]\begin{center}
+<<shoVD4c,fig=TRUE,cache=TRUE,eval=TRUE>>=
+sho(enames=names(E3List))
+@
+\caption{Lots of 3 sets}
+ \end{center}\end{figure}
+
+
+@
+
+\cite{edwards:2004}
+\bibliographystyle{plain}
+\bibliography{./Venn}
+\end{document}
+

@@ -1,0 +1,6 @@
+library(Vennerable)
+choc <- c("Adam","Mum","Alex")
+ice <- c("Dad","Alex","Adam")
+peas <- c("Mum","Dad")
+V2 <- Venn(list(choc=choc,ice=ice,peas=peas))
+try(plot(V2,type="squares"))

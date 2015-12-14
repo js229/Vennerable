@@ -1,0 +1,6 @@
+library(Vennerable)
+data(StemCell)
+Vstem <- Venn(StemCell)
+Tstem <- compute.Venn(Vstem)
+.validateDrawing(Tstem)
+VennGetFaceLabels(Tstem)

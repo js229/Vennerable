@@ -1,0 +1,206 @@
+% jobs
+% different p1, p2 shapes
+% different Smith function shapes
+% set defined on sphere or on projection?
+
+%**************************************************************************
+%
+% # $Id: AWFE.Rnw 30 2009-08-01 22:00:56Z js229 $
+%\VignetteIndexEntry{Details of the Edwards construction}
+
+<<defmakeme,echo=FALSE,eval=FALSE>>=
+makeme <- function() {
+	if ("package:Vennerable" %in% search()) detach("package:Vennerable")
+	library(weaver)
+	setwd("C:/JonathanSwinton/Vennerable/pkg/Vennerable/inst/doc")
+	Sweave(driver="weaver","AWFE.Rnw",stylepath=FALSE,use.cache=FALSE)
+}
+makeme()
+@
+
+
+\documentclass[a4paper]{article}
+
+
+\title{
+Edwards-Venn diagrams
+}
+\author{Jonathan Swinton}
+
+\SweaveOpts{prefix.string=AWFEfig,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
+\usepackage{float}
+%\usepackage{natbib}
+\usepackage{mathptmx}
+\usepackage{rotating} 
+\usepackage[nodayofweek]{datetime}\longdate
+\usepackage{hyperref}
+\begin{document}
+
+
+\maketitle
+This vignette is mainly for the use of the package developer.
+
+<<doremove,echo=FALSE>>=
+remove(list=setdiff(ls(),"makeme"));
+library(Vennerable)
+library(grid)
+library(RColorBrewer)
+ 
+@
+
+Edwards \cite{edwards:2004} starts by constructing Venn sets on a sphere and then projecting onto the plane.
+On the sphere we use polar coordinates with longitude $\theta$ and latitude $\phi$. Arc distance
+from the equator is $s$ and height above the equatorial plane is $h$:
+\begin{eqnarray*}
+s &=& r \frac{\phi}{2\pi}
+\\
+h &=& r \sin \phi
+\end{eqnarray*}
+Project down onto the equatorial plane (a polar stereographic projection).
+\begin{eqnarray*}
+\rho &=& \frac{\cos\phi}{1-\sin\phi} 2r
+\\
+x &=& \rho \cos \theta
+\\
+y &=& \rho \sin \theta
+\end{eqnarray*}
+For the purposes of visualisation in this document, we also use a Mercator projection onto the equatorial cylinder
+\begin{eqnarray*}
+x &=& r \cos \phi \cos \theta
+\\
+y &=& r \cos \phi \sin \theta
+\end{eqnarray*}
+\begin{eqnarray*}
+x &=&  r \theta
+\\
+y &=& h
+\end{eqnarray*}
+
+Edwards suggests using the Smith functions. In a Mercator projection the Smith functions are
+\begin{eqnarray*}
+h_n(\theta) &=& \frac{ \cos(2^{n-2} \theta)}{2^{n-2}}
+\end{eqnarray*}
+
+So $h_n(\theta)=T_{n-2}\theta$ where 
+\begin{eqnarray*}
+T_n(x) &=& \frac{1}{2^n}\cos{2^n x}
+\\
+&=&  \frac{1}{2^n}\cos\frac{1}{2}{2^{n+1} x}
+\\
+2^{2n} T_n^2 &=& \frac{1}{2}\left( 1+ 2^{n+1}T_{n+1}\right)
+\\
+T_{n+1} &=& 2^{n} T_n^2 - \frac{1}{2^{n+1}}
+\end{eqnarray*}
+So $T_{n+1}=0$ when $T_n=\pm 2^{-n} 1/\sqrt(2)$; $2^nx=\pi/4+(p/2)2\pi$.
+
+<<defsmith>>=
+
+@
+
+<<Sbuilder,cache=TRUE>>=
+SetBoundaries <- list()
+SetBoundaries[["AWFE"]] <- makeAWFESets(9,type="AWFE",hmax=.58) # only works up to n=8
+SetBoundaries[["AWFEscale"]] <- makeAWFESets(7,type="AWFEscale",hmax=.6) # can't make it work out to n=9
+SetBoundaries[["cog"]] <- makeAWFESets(9,hmax=.6,type="cog")
+SetBoundaries[["battle"]] <- makeAWFESets(9,type="battle")
+@
+
+
+
+\begin{figure}[H]\begin{center}
+<<shoVD4,fig=TRUE,eval=TRUE>>=
+plotSsets <- function(Slist,nsets=length(Slist),scale=4) {
+	grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
+	makevp.eqsc(scale*c(-1,1),scale*c(-1,1))
+	grid.xaxis();grid.yaxis()
+	colix <- rep(brewer.pal(9,"Set1"),2)[1:nsets]
+
+	for (ix in 1:nsets) {
+		gp <- list(gpar(col=colix[ix])); names(gp)<- names(Slist[[ix]]@setList)
+		PlotSetBoundaries(Slist[[ix]],gp=gp)
+	}
+}
+plotSsets(SetBoundaries[["AWFE"]])
+@
+\caption{AWFE sets based on Smith functions projected from a sphere}
+\label{fig:AWFE}
+ \end{center}\end{figure}
+	
+Edwards (cite) suggests using Smith functions as the set boundaries, as shown in
+Figure \ref{fig:AWFE}.
+
+
+
+\begin{figure}[H]\begin{center}
+<<shoVD4v,fig=TRUE,eval=TRUE>>=
+grid.newpage();
+pushViewport(plotViewport(c(1,1,1,1)));
+makevp.eqsc(4*c(-1,1),4*c(-1,1));
+grid.xaxis();grid.yaxis();
+V8 <- Venn(numberOfSets=8);
+plot(V8,type="AWFE",show=list(SetLabels=FALSE,FaceText="",Faces=TRUE),add=TRUE)
+@
+\caption{8th order AWFE diagram X}
+ \end{center}\end{figure}
+
+
+\subsection{Rescaled Smith functions}
+
+The amplitude of those functions tends geometrically to zero. If we know in advance 
+how many sets we need, we can try rescaling so the amplitudes decreases linearly.
+These sets are shown in Figure~\ref{fig:AWFEscale}.
+
+\begin{figure}[H]\begin{center}
+<<s2builder,fig=TRUE,cache=TRUE>>=
+plotSsets(SetBoundaries[["AWFEscale"]])
+@
+\caption{AWFE sets based on rescaled Smith functions}
+\label{fig:AWFEscale}
+ \end{center}\end{figure}
+	
+
+@
+\subsection{Cog sets}
+Alternatively we could replace each sine curve by a toothed cog
+\begin{figure}[H]\begin{center}
+<<scogbuilder,fig=TRUE>>=
+plotSsets(SetBoundaries[["cog"]])
+
+@
+\caption{AWFE sets based on cogs}
+ \end{center}\end{figure}
+We don't offer these as TissueDiagrams
+
+
+\subsection{Battlement sets}
+Alternatively we can square the circle
+@
+
+\begin{figure}[H]\begin{center}
+<<shoVD8battle,fig=TRUE>>=
+plotSsets(SetBoundaries[["battle"]],scale=4.5)
+@
+\caption{AWFE sets based on battlements}
+ \end{center}\end{figure}
+
+
+
+\begin{figure}[H]\begin{center}
+<<shoVD4c,fig=TRUE,cache=TRUE,eval=TRUE>>=
+grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
+makevp.eqsc(4*c(-1,1),4*c(-1,1))
+grid.xaxis();grid.yaxis()
+V8 <- Venn(numberOfSets=8)
+plot(V8,type="battle",show=list(SetLabels=FALSE,FaceText="",Faces=TRUE),add=TRUE)
+@
+\caption{8th order AWFE diagram based on battlements}
+ \end{center}\end{figure}
+
+
+
+
+@
+\bibliographystyle{plain}
+\bibliography{./Venn}
+
+\end{document}
