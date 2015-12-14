@@ -1,6 +1,6 @@
 Package: Vennerable
 Title: Venn and Euler area-proportional diagrams
-Version: 3.1
+Version: 3.1.0
 Author: Jonathan Swinton
 Description: A package for drawing various species of Venn diagrams.
 Maintainer: Jonathan Swinton <jonathan@swintons.net>
