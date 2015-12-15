@@ -9,7 +9,7 @@ This package is not on CRAN and also requires some BioConductor packages. To ins
 biocLite(c("RBGL","graph"));
 install.packages("devtools"); library(devtools);
 install_github("Vennerable");
-library(Vennerable");`
+library(Vennerable);`
 
 The function based documentations is sketchy. A better guide is the Venn vignette which you can see with
 `library(Vennerable);vignette("Venn")`
