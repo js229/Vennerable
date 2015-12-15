@@ -5,7 +5,7 @@ Author: Jonathan Swinton
 Description: A package for drawing various species of Venn diagrams.
 Maintainer: Jonathan Swinton <jonathan@swintons.net>
 LazyLoad: yes
-Depends: methods
+Depends: methods, R (>= 2.10)
 Imports: graph, RBGL, grid, lattice, RColorBrewer, reshape,  gtools
 Suggests: xtable
 License: GPL
