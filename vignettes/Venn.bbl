@@ -1,0 +1,52 @@
+\begin{thebibliography}{1}
+
+\bibitem{boyer2005}
+Laurie~A. Boyer et~al.
+\newblock Core transcriptional regulatory circuitry in human embryonic stem
+  cells.
+\newblock {\em Cell}, 122:947--956, Sep 2005.
+\newblock 10.1016/j.cell.2005.08.020.
+
+\bibitem{carroll:1896}
+Lewis Carroll.
+\newblock {\em Symbolic Logic}.
+\newblock Macmillan, 1896.
+
+\bibitem{chowruskey:2003}
+Stirling Chow and Frank Ruskey.
+\newblock Drawing area-proportional {Venn} and {Euler} diagrams.
+\newblock In Giuseppe Liotta, editor, {\em Graph Drawing}, volume 2912 of {\em
+  Lecture Notes in Computer Science}, pages 466--477. Springer, 2003.
+
+\bibitem{chowruskey:2005}
+Stirling Chow and Frank Ruskey.
+\newblock Towards a general solution to drawing area-proportional {Euler}
+  diagrams.
+\newblock {\em Electronic Notes in Theoretical Computer Science}, 134:3--18,
+  2005.
+
+\bibitem{chow:2007}
+Stirling~Christopher Chow.
+\newblock {\em {Generating and drawing area-proportional Euler and Venn
+  diagrams}}.
+\newblock PhD thesis, 2007.
+
+\bibitem{edwards:2004}
+A.~W.~F. Edwards.
+\newblock {\em Cogwheels of the Mind: The Story of {Venn} Diagrams}.
+\newblock The John Hopkins University Press, Baltimore, Maryland, 2004.
+
+\bibitem{ruskeyweston:2005}
+Frank Ruskey and Mark Weston.
+\newblock {\em The Electronic Journal of Combinatorics}, chapter A Survey of
+  {Venn} Diagrams.
+\newblock Jun 2005.
+
+\bibitem{venn:1880}
+J.~Venn.
+\newblock On the diagrammatic and mechanical representation of propositions and
+  reasonings.
+\newblock {\em The London, Edinburgh, and Dublin Philosophical Magazine and
+  Journal of Science}, 9:1--18, 1880.
+
+\end{thebibliography}
