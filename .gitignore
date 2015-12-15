@@ -3,3 +3,7 @@
 .RData
 .Rbuildignore
 vennerable.Rproj
+.pdf
+.toc
+.log
+.bbl
