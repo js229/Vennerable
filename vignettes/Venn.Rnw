@@ -34,7 +34,6 @@ Venn diagrams in R\\with the \texttt{Vennerable} package
 \usepackage[nodayofweek]{datetime}\longdate
 \usepackage{hyperref}
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 
 
 \maketitle
