@@ -26,7 +26,7 @@ Venn diagrams in R\\with the \texttt{Vennerable} package
 \author{Jonathan Swinton\\\texttt{jonathan@swintons.net}}
 
 \usepackage{Sweave}
-\SweaveOpts{prefix.string=Vennfig,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
+\SweaveOpts{prefix.string=figdir/Venn,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
 \usepackage{float}
 \usepackage{natbib}
 \usepackage{mathptmx}
@@ -224,8 +224,8 @@ Vmonth2 <- Vmonth3[,c("January","February"),]
 
 For two sets, a diagram can be drawn using either circles or squares, as controlled
 by the \texttt{type} argument. This is shown in Figure~\ref{fig:Vmonth2cs}.\footnote{Here and in the rest of this vignette, much of the code to plot the Figures, which is mainly devoted to
-layout,  is not shown. However it can always be found by inspecting the source code
-of the vignette at \texttt{PACKAGETREE/Vennerable/doc/Venn.Rnw} where \texttt{PACKAGETREE} is directory where the package was installed.}.
+layout,  is not shown. However all the cose used can be seen in  
+\texttt{edit(vignette("Venn"),editor="internal")}.}
 
 
 <<c19,echo=FALSE>>=
