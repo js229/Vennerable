@@ -1,20 +1,25 @@
-# This function is not called as normal part of package use.
+# This function is not called as normal part of package use (& it is not exported)
 # It creates (or updates) the VennDiagrams.rda data file
 # ...takes ~1 hr to run
+
+# The package developer (only) should source() this file in the source package directory
+# and then run
+# buildVennDiagrams()
+
 
 buildVennDiagrams <- function(rebuild=FALSE) {
 # using functions defined in AWFE.Rnw
 
 
-dataDir <- "../data"
+dataDir <- "./data"
 dataFile <- file.path(dataDir,"VennDiagrams.rda")
 if (!file.exists(dataFile)) {
 	VennDiagrams <- list()
-	save(VennDiagrams,file=dataFile)
+	save(VennDiagrams,file=dataFile,compress="xz")
 }
 
 SetBoundaries <- list()
-SetBoundaries[["AWFE"]] <- makeAWFESets(9,type="AWFE",hmax=.58) # only works up to n=8
+SetBoundaries[["AWFE"]] <- makeAWFESets(10,type="AWFE",hmax=.58) # only works up to n=8
 SetBoundaries[["AWFEscale"]] <- makeAWFESets(7,type="AWFEscale",hmax=.6) # can't make it work out to n=9
 SetBoundaries[["cog"]] <- makeAWFESets(9,hmax=.6,type="cog")
 SetBoundaries[["battle"]] <- makeAWFESets(9,type="battle")
@@ -39,7 +44,7 @@ saveTD <- function(type,rebuild=FALSE,Setlist ,dataFile) {
 		TD <- makeAWFE(n,AWFEnminus1=VennDiagrams[[type]][[n-1]],Setlist=Setlist)	
 		.validateDrawing(TD)
 		VennDiagrams[[type]][[n]] <- TD
-		save(VennDiagrams,file=dataFile)
+		save(VennDiagrams,file=dataFile,compress="xz")
 	}
 }
 
@@ -47,7 +52,7 @@ saveTD <- function(type,rebuild=FALSE,Setlist ,dataFile) {
 
 saveTD("battle",Setlist =SetBoundaries[["battle"]],dataFile=dataFile,rebuild=rebuild)
 saveTD(type="AWFEscale",Setlist =SetBoundaries[["AWFEscale"]],dataFile=dataFile,rebuild=rebuild)
-saveTD("AWFE",Setlist =SetBoundaries[["AWFE"]][1:8],dataFile=dataFile,rebuild=rebuild)
+saveTD("AWFE",Setlist =SetBoundaries[["AWFE"]][1:10],dataFile=dataFile,rebuild=rebuild)
 
 	loaded <- load(dataFile)
 	stopifnot("VennDiagrams" %in% loaded)
@@ -61,7 +66,7 @@ saveTD("AWFE",Setlist =SetBoundaries[["AWFE"]][1:8],dataFile=dataFile,rebuild=re
 		.validateDrawing(E4)
 		vde[[4]] <- E4
 		VennDiagrams[["ellipses"]] <- vde
-		save(VennDiagrams,file=dataFile)
+		save(VennDiagrams,file=dataFile,compress="xz")
 	}
 }
 
