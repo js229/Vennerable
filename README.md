@@ -11,6 +11,6 @@ install.packages("devtools"); library(devtools);
 install_github("Vennerable");
 library(Vennerable);`
 
-The function based documentations is sketchy. A better guide is the Venn vignette which you can see with
+The function based documentation is sketchy. A better guide is the Venn vignette which you can see with
 `library(Vennerable);vignette("Venn")`
 
