@@ -13,7 +13,7 @@ This package may make it to CRAN one day, but it isn't there now so the easiest 
 `install.packages("devtools"); library(devtools);`. 
 
 Finally you can actually install it with 
-`install_github("Vennerable");
+`install_github("js229/Vennerable");
 library(Vennerable);`
 
 The function based documentation is sketchy. A better guide is the Venn vignette which you can see with
