@@ -6,7 +6,7 @@ Description: A package for drawing various species of Venn diagrams.
 Maintainer: Jonathan Swinton <jonathan@swintons.net>
 LazyLoad: yes
 Depends: methods, R (>= 2.10)
-Imports: graph, RBGL, grid, lattice, RColorBrewer, reshape,  gtools
+Imports: graph, RBGL, grid, lattice, RColorBrewer, reshape2,  gtools
 URL: https://github.com/js229/Vennerable
 Suggests: xtable
 License: GPL
