@@ -338,7 +338,7 @@ compute.CR <- function(V,doWeights=TRUE) {
 		outerRay <- apply(SetRayPoints,2,max,na.rm=TRUE)
 	}
 
-	srp.df <- melt(SetRayPoints); colnames(srp.df) <- c("SetNumber","Ray","r")
+	srp.df <- reshape::melt(SetRayPoints); colnames(srp.df) <- c("SetNumber","Ray","r")
 	srp.df$Name <- NA
 	# that's all the work done, just encode this as a tissue diagram now
 	for (vs in names(setlines)) {
