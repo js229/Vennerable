@@ -836,8 +836,6 @@ VennSetNames(V0)
 \hline
 Author & Jonathan Swinton
 \\
-SVN id of this document & ${}$Id: VennDrawingTest.Rnw 82 2013-07-24 22:16:12Z js229 ${}$.
-\\
 Generated on & \today
 \\
 R version & 
