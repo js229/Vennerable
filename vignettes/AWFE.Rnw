@@ -99,10 +99,10 @@ So $T_{n+1}=0$ when $T_n=\pm 2^{-n} 1/\sqrt(2)$; $2^nx=\pi/4+(p/2)2\pi$.
 
 <<Sbuilder,cache=TRUE>>=
 SetBoundaries <- list()
-SetBoundaries[["AWFE"]] <- makeAWFESets(9,type="AWFE",hmax=.58) # only works up to n=8
-SetBoundaries[["AWFEscale"]] <- makeAWFESets(7,type="AWFEscale",hmax=.6) # can't make it work out to n=9
-SetBoundaries[["cog"]] <- makeAWFESets(9,hmax=.6,type="cog")
-SetBoundaries[["battle"]] <- makeAWFESets(9,type="battle")
+SetBoundaries[["AWFE"]] <- Vennerable:::makeAWFESets(9,type="AWFE",hmax=.58) # only works up to n=8
+SetBoundaries[["AWFEscale"]] <- Vennerable:::makeAWFESets(7,type="AWFEscale",hmax=.6) # can't make it work out to n=9
+SetBoundaries[["cog"]] <- Vennerable:::makeAWFESets(9,hmax=.6,type="cog")
+SetBoundaries[["battle"]] <- Vennerable:::makeAWFESets(9,type="battle")
 @
 
 

@@ -46,7 +46,7 @@ How many distinct zero-patterns are there, allowing set relabelling?
 library(Vennerable)
 library(xtable)
 library(grid)
-Eclass <-EulerClasses(n=3)
+Eclass <-Vennerable::: EulerClasses(n=3)
 Ehave3 <- subset(Eclass,SetsRepresented==3 , -SetsRepresented)
 Ehave <- subset(Eclass, ESignature==ESignatureCanonical,-ESignatureCanonical)
 

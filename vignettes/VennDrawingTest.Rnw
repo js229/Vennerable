@@ -120,9 +120,9 @@ Vempty3 <- VennFromSets( setList[c(4,5,6)])
 This is created from a \texttt{TissueDrawing} object and a \texttt{Venn} object
 <<testVD,echo=TRUE>>=
 centre.xy <- c(0,0)
-VDC1 <- newTissueFromCircle(centre.xy,radius=2,Set=1); 
-VDC2 <- newTissueFromCircle(centre.xy+c(0,1.5),radius=1,Set=2)
-TM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
+VDC1 <- Vennerable:::newTissueFromCircle(centre.xy,radius=2,Set=1); 
+VDC2 <- Vennerable:::newTissueFromCircle(centre.xy+c(0,1.5),radius=1,Set=2)
+TM <- Vennerable:::addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
 VD2 <- new("VennDrawing",TM,V2)
 
 @
@@ -148,8 +148,8 @@ PlotNodes(VD2)
  r <- c(0.8,0.4)
  d.origin <- 0.5
  d <- 2*d.origin
- C2 <- TwoCircles(r=r,d=d,V=V2)
- C2 <- .square.universe(C2,doWeights=FALSE)
+ C2 <- Vennerable:::TwoCircles(r=r,d=d,V=V2)
+ C2 <- Vennerable:::.square.universe(C2,doWeights=FALSE)
  centres <- matrix(c(-d/2,0,d/2,0),ncol=2,byrow=TRUE)
 
  # use notation from Mathworld http://mathworld.wolfram.com/Circle-CircleIntersection.html
@@ -175,14 +175,14 @@ PlotNodes(VD2)
  grid.segments(x0=centres[2,1],x1=centres[2,1]-d2,y0=0,y1=y,default.units="native")
  grid.text(x=c(-.2,0.4,0.2,-0.2,0.43),y=c(-0.05,-.05,0.2,0.17,0.17),
 	label=c(expression(d[1]),expression(d[2]),"y",expression(r[1]),expression(r[2])),default.units="native")
- UpViewports()
+ Vennerable:::UpViewports()
 popViewport()
 	pushViewport(viewport(layout.pos.row=2))
 Cr <- c(0.8,0.4)
   d <- .5
- C2 <- TwoCircles(r=r,d=d,V2)
+ C2 <- Vennerable:::TwoCircles(r=r,d=d,V2)
   centres <- matrix(c(-d/2,0,d/2,0),ncol=2,byrow=TRUE)
-C2 <- .square.universe(C2,doWeights=FALSE)
+C2 <- Vennerable:::.square.universe(C2,doWeights=FALSE)
  # use notation from Mathworld http://mathworld.wolfram.com/Circle-CircleIntersection.html
  d1 <- (d^2 - r[2]^2+ r[1]^2) /( 2* d)
  d2 <- d - d1
@@ -202,7 +202,7 @@ C2 <- .square.universe(C2,doWeights=FALSE)
  grid.text(x=c(0,0.4,0.5,0.05,0.4),y=c(-0.05,-.05,0.2,0.17,0.17),
 	label=c(expression(d[1]-d[2]),expression(d[2]),
 		"y",expression(r[1]),expression(r[2])),default.units="native")
-UpViewports()
+Vennerable:::UpViewports()
 
 popViewport()
 
@@ -250,7 +250,7 @@ checkAreas <- function(object) {
 	allareas<- allareas[names(wght)]
 	res <- data.frame(cbind(Area=allareas,Weight=wght))
 	res$IndicatorString <- names(wght)
-	res <- subset(res,IndicatorString != dark.matter.signature(object) & !( Weight==0 & abs(Area)<1e-4))
+	res <- subset(res,IndicatorString != Vennerable:::dark.matter.signature(object) & !( Weight==0 & abs(Area)<1e-4))
 	res$Density <- res$Area/res$Weight
 	res <- subset(res, abs(log10(Density))>log10(1.1))
 	if(nrow(res)>0) { print(res);stop("Area check failed")}
@@ -261,7 +261,7 @@ checkAreas <- function(object) {
 \begin{figure}[H]
   \begin{center}
 <<pv2b2,fig=TRUE>>=
-C2.big <- compute.C2(V=V2.big,doWeights=TRUE,doEuler=TRUE)
+C2.big <- Vennerable:::compute.C2(V=V2.big,doWeights=TRUE,doEuler=TRUE)
 grid.newpage()
 PlotVennGeometry(C2.big)
 Areas(C2.big)
@@ -295,7 +295,7 @@ p2four <- function(V,type="circles",doFaces=FALSE) {
 			SetLabels=FALSE,DarkMatter=FALSE,Faces=doFaces))
 		downViewport("Vennvp")
 		PlotNodes(C2)
-		UpViewports()	
+		Vennerable:::UpViewports()	
 			
 			popViewport()
 		popViewport()
@@ -327,13 +327,13 @@ Weights(V2.no10)["10"] <- 0
 
 V2.no11 <- V2
 Weights(V2.no11)["11"] <- 0
-C2.no10 <- compute.C2(V2.no10)
+C2.no10 <- Vennerable:::compute.C2(V2.no10)
 Areas(C2.no10)
 @
 
 \begin{figure}[H]\begin{center}
 <<p2threef01,fig=TRUE>>=
-#C2.no01 <- compute.C2(V=V2.no01,doEuler=TRUE,doWeights=TRUE)
+#C2.no01 <- Vennerable:::compute.C2(V=V2.no01,doEuler=TRUE,doWeights=TRUE)
 p2four (V=V2.no01,doFaces=TRUE)
 @
 \caption{Effect of the Euler and \texttt{doWeights} flags.}
@@ -346,7 +346,7 @@ p2four (V=V2.no01,doFaces=TRUE)
 <<p2no11threef,fig=TRUE>>=
 p2four (V2.no11,doFaces=TRUE)
 #compute.Venn(V=V2.no11, doWeights = FALSE, doEuler = TRUE,  type = "circles")
-#compute.C2(V=V2.no11, doWeights = FALSE, doEuler = TRUE)
+#Vennerable:::compute.C2(V=V2.no11, doWeights = FALSE, doEuler = TRUE)
 @
 \caption{As before for a different set of weights}
 \end{center}\end{figure}
@@ -355,7 +355,7 @@ p2four (V2.no11,doFaces=TRUE)
 \begin{figure}[H]\begin{center}
 <<p2no10threef,fig=TRUE>>=
 p2four (V2.no10,doFaces=TRUE)
-#C2 <- compute.C2(V=V2.no10, doWeights = FALSE, doEuler = TRUE)
+#C2 <- Vennerable:::compute.C2(V=V2.no10, doWeights = FALSE, doEuler = TRUE)
 @
 \caption{As before for a different set of weights}
 \end{center}\end{figure}
@@ -370,7 +370,7 @@ plot(V2,type="squares")
 \subsubsection{Weights}
 \begin{figure}[H]\begin{center}
 <<s2big,fig=TRUE>>=
-S2.big <- compute.S2(V2.big,doWeights=TRUE,doEuler=TRUE)
+S2.big <- Vennerable:::compute.S2(V2.big,doWeights=TRUE,doEuler=TRUE)
 grid.newpage()
 PlotVennGeometry(S2.big)
 Areas(S2.big)
@@ -381,7 +381,7 @@ Areas(S2.big)
 
 \begin{figure}[H]\begin{center}
 <<p2s01threef,fig=TRUE>>=
-C2.no01 <- compute.S2(V=V2.no01,doWeights=FALSE,doEuler=FALSE)
+C2.no01 <- Vennerable:::compute.S2(V=V2.no01,doWeights=FALSE,doEuler=FALSE)
 #plotNodes(C2.no01)
 p2four (V2.no01,type="squares")
 @
@@ -390,7 +390,7 @@ p2four (V2.no01,type="squares")
 
 \begin{figure}[H]\begin{center}
 <<p2sthreef,fig=TRUE>>=
-C2.no11 <- compute.S2(V=V2.no11,doWeights=FALSE,doEuler=TRUE)
+C2.no11 <- Vennerable:::compute.S2(V=V2.no11,doWeights=FALSE,doEuler=TRUE)
 
 p2four (V2.no11,type="squares")
 @
@@ -398,7 +398,7 @@ p2four (V2.no11,type="squares")
 
 \begin{figure}[H]\begin{center}
 <<p2sthreeffs,fig=TRUE>>=
-S2.no10 <- compute.S2(V2.no10)
+S2.no10 <- Vennerable:::compute.S2(V2.no10)
 grid.newpage()
 PlotVennGeometry(S2.no10)
 downViewport("Vennvp")
@@ -421,7 +421,7 @@ V=Vcombo
 #C3 <- ThreeCircles (r=d,d=d,V=V)
 #grid.newpage()
 #PlotVennGeometry(C3)
-C3 <- compute.C3(Vcombo)
+C3 <- Vennerable:::compute.C3(Vcombo)
 #PlotVennGeometry(C3)
 @
 
@@ -441,7 +441,7 @@ to produce approximate ones.
 \begin{figure}[H]
   \begin{center}
 <<ccomboutransp,fig=TRUE>>= 
-C3combo <- compute.C3(Vcombo,doWeights=TRUE)
+C3combo <- Vennerable:::compute.C3(Vcombo,doWeights=TRUE)
 grid.newpage()
 PlotVennGeometry(C3combo)
 Areas(C3combo)
@@ -470,7 +470,7 @@ an area-proportional drawing under some contrainsts on the weights
 
 \begin{figure}[H]\begin{center}
 <<plotT3,echo=FALSE,fig=TRUE>>=
-T3a <- compute.T3(V3a)
+T3a <- Vennerable:::compute.T3(V3a)
 grid.newpage()
 PlotVennGeometry(T3a ,show=list(FaceText="signature"))
 downViewport("Vennvp")
@@ -487,7 +487,7 @@ checkAreas(T3a )
 \subsubsection{Triangles}
 \begin{figure}[H]\begin{center}
 <<pv3wempty1t,fig=TRUE>>=
-TN3 <- compute.T3(VN3)
+TN3 <- Vennerable:::compute.T3(VN3)
 
 grid.newpage()
 PlotVennGeometry(TN3)
@@ -557,11 +557,11 @@ Iff
 this has two real solutions between $w_a$ and $1-w_b$.
 
 <<>>=
-.inscribetriangle.feasible(rep(0.25,3))
+Vennerable:::.inscribetriangle.feasible(rep(0.25,3))
 @
 
 <<tv3,fig=TRUE>>=
-T3 <- compute.T3(Vempty,doWeights=FALSE)
+T3 <- Vennerable:::compute.T3(Vempty,doWeights=FALSE)
 grid.newpage()
 PlotVennGeometry(T3,show=list(FaceText="signature"))
 @
@@ -569,14 +569,14 @@ PlotVennGeometry(T3,show=list(FaceText="signature"))
 
 \subsection{Three triangles}
 <<threet,echo=FALSE,results=hide>>=
-T3a <- compute.T3(V3a)
+T3a <- Vennerable:::compute.T3(V3a)
 VisibleRange(T3a)
 Areas(T3a)
 
-T3.big <- compute.T3(V3.big)
-T3a <- (compute.T3(V3a))
-TN <- compute.T3(VN3)
-TCombo <- try(compute.T3(Vcombo))
+T3.big <- Vennerable:::compute.T3(V3.big)
+T3a <- (Vennerable:::compute.T3(V3a))
+TN <- Vennerable:::compute.T3(VN3)
+TCombo <- try(Vennerable:::compute.T3(Vcombo))
 
 @
 
@@ -593,7 +593,7 @@ PlotVennGeometry(T3a,show=list(FaceText="signature"))
 This is a version of the algorithm suggested by Chow Ruskey 2003.
 \begin{figure}[H]\begin{center}
 <<S3ccpdemo,fig=TRUE>>=
-S3a <- compute.S3(V3a,doWeights=TRUE)
+S3a <- Vennerable:::compute.S3(V3a,doWeights=TRUE)
 grid.newpage()
 PlotVennGeometry(S3a,show=list(FaceText="signature"))
 downViewport("Vennvp")
@@ -608,7 +608,7 @@ checkAreas(S3a)
 
 \begin{figure}[H]\begin{center}
 <<plotS3d,echo=FALSE,fig=TRUE>>=
-S3a <- compute.S3(V3a)
+S3a <- Vennerable:::compute.S3(V3a)
 PlotVennGeometry(S3a)
 @
 
@@ -623,7 +623,7 @@ PlotVennGeometry(S3a)
 <<S4demoff,fig=TRUE,echo=FALSE>>=
 S4  <- compute.S4(V4,s=0.2,likeSquares=TRUE)
 grid.newpage()
-CreateViewport(S4)
+Vennerable:::CreateViewport(S4)
 PlotSetBoundaries(S4)
 PlotIntersectionText (S4,element.plot="elements")
 PlotNodes(S4)
@@ -675,7 +675,7 @@ sho4 <- function(CR4) {
 
 \begin{figure}[H]\begin{center}
 <<pCR3,fig=TRUE>>=
-CR3 <- compute.CR(V3)
+CR3 <- compute.Venn(V3,type="ChowRuskey")
 checkAreas(CR3)
 
 sho4(CR3 )
@@ -684,7 +684,7 @@ sho4(CR3 )
 
 \begin{figure}[H]\begin{center}
 <<pCR3f,fig=TRUE>>=
-CR3f <- compute.CR(V3a)
+CR3f <- compute.Venn(V3a,type="ChowRuskey")
 sho4(CR3f )
 checkAreas(CR3f )
 @
@@ -698,7 +698,7 @@ checkAreas(CR3f )
 V4a <- Venn(SetNames=month.name[1:4],Weight=1:16)
 @
 <<plotCR4,echo=FALSE,fig=TRUE>>=
-CR4a <-  compute.CR(V4a)
+CR4a <-  compute.Venn(V4a,type="ChowRuskey")
 grid.newpage()
 PlotVennGeometry(CR4a ,show=list(FaceText="signature"))
 checkAreas(CR4a )
@@ -717,7 +717,7 @@ V4W["0111"] <- 10
 V4W["1011"] <- 5
 V4w <- V4a
 Weights(V4w) <- V4W
-CR4w <-  compute.CR(V4w)
+CR4w <-  compute.Venn(V4w,type="ChowRuskey")
 checkAreas(CR4w )
 
 #grid.newpage()
@@ -776,7 +776,7 @@ If all the $r$s are the same then $c_b=[2(n-3)+4]r=(2n-2)r$.
 
 \begin{figure}[H]\begin{center}
 <<CR4fig,fig=TRUE>>=
-CK4 <- compute.CR(V4)
+CK4 <- compute.Venn(V4,type="ChowRuskey")
 grid.newpage()
 PlotVennGeometry(CK4,show=list(FaceText="weight",SetLabels=FALSE))
 checkAreas(CK4)
@@ -785,7 +785,7 @@ checkAreas(CK4)
 
 \begin{figure}[H]\begin{center}
 <<pCR4,fig=TRUE>>=
-CR4f <- compute.CR(V4f)
+CR4f <- compute.Venn(V4f,type="ChowRuskey")
 sho4(CR4f )
 @
 \caption{Chow-Ruskey 4}

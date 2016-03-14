@@ -856,7 +856,7 @@ the weighted diagrams produced are already Euler diagrams.
 \begin{figure}[H]\begin{center}
 <<CR4fig,fig=TRUE>>=
 V4z <-  VennFromSets( setList[1:4])
-CK4z <- compute.CR(V4z)
+CK4z <- compute.Venn(V4z,type="ChowRuskey")
 grid::grid.newpage()
 gp <- VennThemes(CK4z,increasingLineWidth=TRUE)
 plot(CK4z,show=list(SetLabels=FALSE,FaceText="elements",Faces=TRUE),gpList=gp)
@@ -909,8 +909,6 @@ For more details and rather more rigour see first the online review of Ruskey an
 \begin{tabular}{|l|l|}
 \hline
 Author & Jonathan Swinton
-\\
-SVN id of this document & ${}$Id: Venn.Rnw 80 2013-07-24 22:13:34Z js229 ${}$.
 \\
 Generated on & \today
 \\

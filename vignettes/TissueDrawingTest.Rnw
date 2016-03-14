@@ -1,21 +1,16 @@
 %**************************************************************************
 %
-% # $Id: TissueDrawingTest.Rnw 80 2013-07-24 22:13:34Z js229 $
 %\VignetteIndexEntry{Details of the TissueDrawing object for internal use only}
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
 makeme <- function() {
-	setwd("/Users/dad/Documents/vennerable/pkg/Vennerable/inst/doc")
-#	library(weaver);	Sweave(driver="weaver","TissueDrawingTest.Rnw",stylepath=FALSE,use.cache=FALSE)
+	setwd("/~Vennerable/vignette")
 	Sweave("TissueDrawingTest.Rnw",stylepath=FALSE)
 }
 makeme()
 @
 
-% $Revision: 1.6 $
-% $Author: js229 $
-% $Date: 2013-07-24 23:13:34 +0100 (Wed, 24 Jul 2013) $
-%
+
 
 \documentclass[a4paper]{article}
 
@@ -54,7 +49,7 @@ library(grid)
 options(width=80)
 shoar <- function(VDI) {
 	res <- lapply(VDI@edgeList,function(lh){
-		xy <- .edge.to.xy(lh);
+		xy <- Vennerable:::.edge.to.xy(lh);
 	      grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())
 		}
 	)
@@ -91,12 +86,12 @@ The angles of the beginning $\theta_f$ and end $\theta_t$ of the segment
 <<defVDedgeSector,fig=TRUE,echo=FALSE>>=
 nodeList <- list(p1=matrix(1:2,ncol=2),p2=matrix(2:3,ncol=2))
 centre = c(-1,5)
-fromTheta <- .point.xy.to.theta(nodeList[["p1"]],centre)
-toTheta <- .point.xy.to.theta(nodeList[["p2"]],centre)
+fromTheta <- Vennerable:::.point.xy.to.theta(nodeList[["p1"]],centre)
+toTheta <- Vennerable:::.point.xy.to.theta(nodeList[["p2"]],centre)
 
-lh <- newEdgeSector(centre=c(-1,5),hand=1,from="p1",to="p2",fromTheta=fromTheta,toTheta=toTheta,radius=sqrt(13))
-#lh <- newEdgeSector(centre=c(-1,5),hand=1,from="p1",to="p2",fromTheta=fromTheta,toTheta=toTheta,radius=sqrt(13))
-lh <-  .normalise.sector(lh)
+lh <- Vennerable:::newEdgeSector(centre=c(-1,5),hand=1,from="p1",to="p2",fromTheta=fromTheta,toTheta=toTheta,radius=sqrt(13))
+#lh <- Vennerable:::newEdgeSector(centre=c(-1,5),hand=1,from="p1",to="p2",fromTheta=fromTheta,toTheta=toTheta,radius=sqrt(13))
+lh <-  Vennerable:::.normalise.sector(lh)
 
 
 VD1 <- new("TissueDrawing",nodeList=nodeList)
@@ -106,9 +101,9 @@ makevp.eqsc(c(-6,4),c(0,9))
 grid.xaxis()
 grid.yaxis()
 PlotNodes(VD1)
-xy <- .edge.to.xy(lh); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())
+xy <- Vennerable:::.edge.to.xy(lh); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())
 lh@hand <- -1
-xy <- .edge.to.xy(lh); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow(),gp=gpar(col="red"))
+xy <- Vennerable:::.edge.to.xy(lh); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow(),gp=gpar(col="red"))
 @
 \caption{In black, a right-handed edge sector, and in red a left-handed one}
 \label{fig:vds}
@@ -131,15 +126,15 @@ Individual faces within a diagram are stored as a vector of edge names describin
 <<shoFace,fig=TRUE,echo=FALSE>>=
 centre1 <- c(0,0)
 nodeList <- list(p1=matrix(c(-1,0),ncol=2),p2=matrix(c(1,0),ncol=2))
-fromTheta1 <- .point.xy.to.theta(nodeList[["p1"]],centre1)
-toTheta1 <- .point.xy.to.theta(nodeList[["p2"]],centre1)
-lh1 <- newEdgeSector(centre=centre1 ,hand=1,from="p1",to="p2",fromTheta=fromTheta1,toTheta=toTheta1,radius=1)
+fromTheta1 <- Vennerable:::.point.xy.to.theta(nodeList[["p1"]],centre1)
+toTheta1 <- Vennerable:::.point.xy.to.theta(nodeList[["p2"]],centre1)
+lh1 <- Vennerable:::newEdgeSector(centre=centre1 ,hand=1,from="p1",to="p2",fromTheta=fromTheta1,toTheta=toTheta1,radius=1)
 centre2 <- c(0,-.1)
-fromTheta2 <- .point.xy.to.theta(nodeList[["p2"]],centre2)
-toTheta2 <- .point.xy.to.theta(nodeList[["p1"]],centre2)
+fromTheta2 <- Vennerable:::.point.xy.to.theta(nodeList[["p2"]],centre2)
+toTheta2 <- Vennerable:::.point.xy.to.theta(nodeList[["p1"]],centre2)
 radius2 <- sqrt(sum((nodeList[["p1"]]-centre2)^2))
-lh2 <- newEdgeSector(centre=centre2 ,hand=-1,from="p2",to="p1",fromTheta=fromTheta2,toTheta=toTheta2,radius=radius2)
-lh2 <-  .normalise.sector(lh2)
+lh2 <- Vennerable:::newEdgeSector(centre=centre2 ,hand=-1,from="p2",to="p1",fromTheta=fromTheta2,toTheta=toTheta2,radius=radius2)
+lh2 <-  Vennerable:::.normalise.sector(lh2)
 edgeList <- list(lh1=lh1,lh2=lh2)
 faceList <- list("1"=c("lh1","lh2"))
 setList <- faceList
@@ -151,7 +146,7 @@ makevp.eqsc(c(-2,2),c(-2,2))
 PlotNodes(VD1)
 PlotSetBoundaries(VD1)
 # centroid is not in face
-aPoint <- .find.point.within.face(drawing=VD1,faceName="1")
+aPoint <- Vennerable:::.find.point.within.face(drawing=VD1,faceName="1")
 grid.points(x=aPoint[1],y=aPoint[2],default.units="native",pch=4)
 @
 \caption{A face which doesn't contain its centroid}. 
@@ -159,26 +154,31 @@ grid.points(x=aPoint[1],y=aPoint[2],default.units="native",pch=4)
 \end{center}\end{figure}
 
 \section{Joining disjoint faces}
-<<>>=
+<<defdotPA>>=
 .PlotArcs <- function(drawing,edgeNames) {
 	if (missing(edgeNames)) { edgeNames=names(drawing@edgeList)}
-	exy <- lapply(drawing@edgeList[edgeNames],.edge.to.xy)
+	exy <- lapply(drawing@edgeList[edgeNames],Vennerable:::.edge.to.xy)
 	lapply(exy,function(xy){grid.lines(xy[,1],xy[,2],arrow=arrow(),default.units="native")})
 	}
 
+@
 
-<<defjoint,fig=TRUE>>=
+<<defjoint>>=
 VD2 <- compute.Venn(Venn(n=2))
-VD3 <- newTissueFromCircle (centre.xy =c(2,0), radius=.6,Set=3)
+VD3 <- Vennerable:::newTissueFromCircle (centre.xy =c(2,0), radius=.6,Set=3)
 VD23 <- VD2
 VD23@faceList <- c(VD2@faceList,VD3@faceList)
 VD23@edgeList <- c(VD2@edgeList,VD3@edgeList)
 VD23@setList <- c(VD2@setList,VD3@setList)
+@
+
+<<defjoint2,fig=TRUE>>=
 grid.newpage()
 pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-2,3),c(-2,2));grid.xaxis();grid.yaxis()
 
-cejf <- .create.edge.joining.faces(VD23,"DarkMatter","1")
+
+cejf <- Vennerable:::.create.edge.joining.faces(VD23,"DarkMatter","1")
 VD23 <- cejf$drawing
 PlotSetBoundaries(VD23)
 .PlotArcs(VD23)
@@ -194,29 +194,29 @@ sectorfromto <- function(sector,from,to,nodeList) {
 	sector@from <- from
 	sector@to <- to
 	from.point<- nodeList[[from]]
-	sector@fromTheta <- .point.xy.to.theta(from.point,sector@centre)
-	sector@toTheta <- .point.xy.to.theta(nodeList[[to]],sector@centre)
-	sector <- .normalise.sector(sector)
+	sector@fromTheta <- Vennerable:::.point.xy.to.theta(from.point,sector@centre)
+	sector@toTheta <- Vennerable:::.point.xy.to.theta(nodeList[[to]],sector@centre)
+	sector <- Vennerable:::.normalise.sector(sector)
 }
 centre = c(-1,5)
-fromTheta <- .point.xy.to.theta(nodeList[["p1"]],centre)
-toTheta <- .point.xy.to.theta(nodeList[["p2"]],centre)
+fromTheta <- Vennerable:::.point.xy.to.theta(nodeList[["p1"]],centre)
+toTheta <- Vennerable:::.point.xy.to.theta(nodeList[["p2"]],centre)
 
-lh <- newEdgeSector( centre=c(-1,5),hand=1,fromTheta=fromTheta,toTheta=toTheta,radius=sqrt(13))
+lh <- Vennerable:::newEdgeSector( centre=c(-1,5),hand=1,fromTheta=fromTheta,toTheta=toTheta,radius=sqrt(13))
 lh <- sectorfromto(lh,"p1","p2",VD.nodeList)
 
 centre = c(4,0)
-fromTheta <- .point.xy.to.theta(nodeList[["p1"]],centre)
-toTheta <- .point.xy.to.theta(nodeList[["p2"]],centre)
-rh <- newEdgeSector(centre=c(4,0),hand=1,fromTheta=fromTheta,toTheta=toTheta,radius=sqrt(13))
+fromTheta <- Vennerable:::.point.xy.to.theta(nodeList[["p1"]],centre)
+toTheta <- Vennerable:::.point.xy.to.theta(nodeList[["p2"]],centre)
+rh <- Vennerable:::newEdgeSector(centre=c(4,0),hand=1,fromTheta=fromTheta,toTheta=toTheta,radius=sqrt(13))
 
-el <- newEdgeLines(from="p1",to="p3",xy=matrix(c(1,2,-0.5,0,-1,0),ncol=2,byrow=T))
+el <- Vennerable:::newEdgeLines(from="p1",to="p3",xy=matrix(c(1,2,-0.5,0,-1,0),ncol=2,byrow=T))
 VD.edgeList <- list("p1|p2|1"=sectorfromto(lh,"p1","p2",VD.nodeList),
                  "p2|p1|1"=sectorfromto(lh,"p2","p1",VD.nodeList),
                  "p1|p2|2"=sectorfromto(rh,"p1","p2",VD.nodeList),
                  "p2|p1|2"=sectorfromto(rh,"p2","p1",VD.nodeList),
 		     "p1|p3|3"=el,
-		     "p3|p1|3"=newEdgeLines(from="p3",to="p1",xy=matrix(c(-1,0,1,2),ncol=2,byrow=T))
+		     "p3|p1|3"=Vennerable:::newEdgeLines(from="p3",to="p1",xy=matrix(c(-1,0,1,2),ncol=2,byrow=T))
 			)
 VD.faceList <- list("100"=c("p1|p2|1","-p1|p2|2"),"110"=c("p1|p2|2","p2|p1|1"),"010"=c("p2|p1|2","-p2|p1|1"),"001"=c("p1|p3|3","p3|p1|3"),
 #	"DarkMatter"=c("p1|p2|1","p2|p1|2","p1|p3|3","p3|p1|3"))
@@ -230,9 +230,9 @@ VD.faceSignature <- lapply(names(VD.faceList),function(x){x}); names(VD.faceSign
 
 VD <- new("TissueDrawing",nodeList =VD.nodeList ,
 	edgeList =VD.edgeList ,setList=VD.setList,faceList=VD.faceList,faceSignature=VD.faceSignature)
-.validateDrawing(VD)
+Vennerable:::.validateDrawing(VD)
 VD
-.checkPointOnEdge(edge=VD@edgeList[["p1|p2|1"]],point.xy=VD@nodeList[["p1"]])
+Vennerable:::.checkPointOnEdge(edge=VD@edgeList[["p1|p2|1"]],point.xy=VD@nodeList[["p1"]])
 @
 
 \begin{figure}[H]\begin{center}
@@ -255,35 +255,35 @@ PlotNodes(VD)
 We test injecting points
 <<tip1>>=
 p4 <- matrix(c(7,-2),ncol=2); rownames(p4) <- "p4"
-VD4 <-  injectPoint(drawing=VD,edgeName="p2|p1|2",newPoint=p4)
-.validateDrawing(VD4)
+VD4 <-  Vennerable:::injectPoint(drawing=VD,edgeName="p2|p1|2",newPoint=p4)
+Vennerable:::.validateDrawing(VD4)
 VD4
 
 p5 <- matrix(c(-3,2),ncol=2); rownames(p5) <- "p5"
-VD4 <-  injectPoint(VD4,edgeName="p1|p2|1",newPoint=p5)
-.validateDrawing(VD4)
+VD4 <-  Vennerable:::injectPoint(VD4,edgeName="p1|p2|1",newPoint=p5)
+Vennerable:::.validateDrawing(VD4)
 VD4
 @
 
 Then we try injecting single edges
 <<defp1p4>>=
 
-p1p4.line <- newEdgeLines(from="p1",to="p4",xy=matrix(c(1,2,7,-2),ncol=2,byrow=T))
-p5p1.line <- newEdgeLines(from="p5",to="p1",xy=matrix(c(-3,2,1,2),ncol=2,byrow=T))
-p4p5.line <- newEdgeLines(from="p4",to="p5",xy=matrix(c(7,-2,7,-4,-3,-4,-3,2),ncol=2,byrow=T))
+p1p4.line <- Vennerable:::newEdgeLines(from="p1",to="p4",xy=matrix(c(1,2,7,-2),ncol=2,byrow=T))
+p5p1.line <- Vennerable:::newEdgeLines(from="p5",to="p1",xy=matrix(c(-3,2,1,2),ncol=2,byrow=T))
+p4p5.line <- Vennerable:::newEdgeLines(from="p4",to="p5",xy=matrix(c(7,-2,7,-4,-3,-4,-3,2),ncol=2,byrow=T))
 
 VD6 <- VD4
 VD6@setList[["4"]] <- c("p4|p5|4","p5|p1|4","p1|p4|4")
 VD6@edgeList <- c(VD6@edgeList,list("p1|p4|4"=p1p4.line,"p5|p1|4"=p5p1.line,"p4|p5|4"=p4p5.line))
-VD6 <- injectEdge(drawing=VD6,newEdgeList=VD6@edgeList["p1|p4|4"],set2Name="4",addToList=FALSE)
-VD6 <- injectEdge(drawing=VD6,newEdgeList=list("p5|p1|4"=p5p1.line),set2Name="4",addToList=FALSE)
-VD6 <- injectEdge(drawing=VD6,newEdgeList=list("p4|p5|4"=p4p5.line),set2Name="4",addToList=FALSE)
+VD6 <- Vennerable:::injectEdge(drawing=VD6,newEdgeList=VD6@edgeList["p1|p4|4"],set2Name="4",addToList=FALSE)
+VD6 <- Vennerable:::injectEdge(drawing=VD6,newEdgeList=list("p5|p1|4"=p5p1.line),set2Name="4",addToList=FALSE)
+VD6 <- Vennerable:::injectEdge(drawing=VD6,newEdgeList=list("p4|p5|4"=p4p5.line),set2Name="4",addToList=FALSE)
 
-.is.face.within.set(drawing=VD6,faceName="0101",setName="2")
-.is.face.within.set(drawing=VD6,faceName="1000",setName="2")
-.is.face.within.set(drawing=VD6,faceName="0001",setName="2")
+Vennerable:::.is.face.within.set(drawing=VD6,faceName="0101",setName="2")
+Vennerable:::.is.face.within.set(drawing=VD6,faceName="1000",setName="2")
+Vennerable:::.is.face.within.set(drawing=VD6,faceName="0001",setName="2")
 
-#.validateDrawing(VD6) 
+#Vennerable:::.validateDrawing(VD6) 
 # will fail because not all faces renamed into Vennness
 VD6
 @
@@ -299,10 +299,10 @@ p9 <- matrix(c(-3,0),ncol=2); rownames(p9) <- "p9";
 VD8@nodeList[["p9"]] <- p9;
 
 
-p5p7.line <- newEdgeLines(from="p5",to="p7",xy=matrix(c(-3,2,-2,1),ncol=2,byrow=T))
-p7p9.line <- newEdgeLines(from="p7",to="p9",xy=matrix(c(-2,1,-3,0),ncol=2,byrow=T))
-p9p8.line <- newEdgeLines(from="p9",to="p8",xy=matrix(c(-3,0,-6,0),ncol=2,byrow=T))
-p8p5.line <- newEdgeLines(from="p8",to="p5",xy=matrix(c(-6,0,-3,2),ncol=2,byrow=T))
+p5p7.line <- Vennerable:::newEdgeLines(from="p5",to="p7",xy=matrix(c(-3,2,-2,1),ncol=2,byrow=T))
+p7p9.line <- Vennerable:::newEdgeLines(from="p7",to="p9",xy=matrix(c(-2,1,-3,0),ncol=2,byrow=T))
+p9p8.line <- Vennerable:::newEdgeLines(from="p9",to="p8",xy=matrix(c(-3,0,-6,0),ncol=2,byrow=T))
+p8p5.line <- Vennerable:::newEdgeLines(from="p8",to="p5",xy=matrix(c(-6,0,-3,2),ncol=2,byrow=T))
 VD8@edgeList[["p5|p7|5"]] <- p5p7.line
 VD8@edgeList[["p7|p9|5"]] <- p7p9.line
 VD8@edgeList[["p9|p8|5"]] <- p9p8.line
@@ -310,14 +310,14 @@ VD8@edgeList[["p8|p5|5"]] <- p8p5.line
 VD8@setList[["5"]] <- c("p5|p7|5","p7|p9|5","p9|p8|5","p8|p5|5")
  VD8@edgeList[["p4|p5|4"]]@xy
 
-VD8 <- injectPoint(drawing=VD8,edgeName="p4|p5|4",newPoint=VD8@nodeList[["p9"]])
+VD8 <- Vennerable:::injectPoint(drawing=VD8,edgeName="p4|p5|4",newPoint=VD8@nodeList[["p9"]])
 VD8@edgeList[["p9|p5|4"]]@xy
 VD8@edgeList[["p4|p9|4"]]@xy
 
-VD8 <- injectEdge(drawing=VD8,newEdgeList=VD8@edgeList[c("p5|p7|5","p7|p9|5")],set2Name="5",addToList=FALSE) 
-VD8 <- injectEdge(drawing=VD8,newEdgeList=VD8@edgeList[c("p9|p8|5","p8|p5|5")],set2Name="5",addToList=FALSE)
+VD8 <- Vennerable:::injectEdge(drawing=VD8,newEdgeList=VD8@edgeList[c("p5|p7|5","p7|p9|5")],set2Name="5",addToList=FALSE) 
+VD8 <- Vennerable:::injectEdge(drawing=VD8,newEdgeList=VD8@edgeList[c("p9|p8|5","p8|p5|5")],set2Name="5",addToList=FALSE)
 # will also fail by incompleteness 
-#.validateDrawing(VD8)
+#Vennerable:::.validateDrawing(VD8)
 @
 \begin{figure}[H]\begin{center}
 <<shoVD7ab,fig=TRUE>>=
@@ -327,7 +327,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(VD8)
 PlotSetBoundaries(VD8,gp=gpar(lwd=2,col=c("red","blue","green","black","orange")))
-.PlotFaceNames.TissueDrawing (VD8)
+Vennerable:::.PlotFaceNames.TissueDrawing (VD8)
 PlotNodes(VD8)
 @
  \end{center}\end{figure}
@@ -337,9 +337,9 @@ PlotNodes(VD8)
 <<>>=
 centre.xy <- c(0,0)
 
-VDC1 <- newTissueFromCircle(centre.xy,radius=2,Set=1)
-VDC2 <- newTissueFromCircle(centre.xy+c(0,1.5),radius=1,Set=2)
-.validateDrawing(VDC2)
+VDC1 <- Vennerable:::newTissueFromCircle(centre.xy,radius=2,Set=1)
+VDC2 <- Vennerable:::newTissueFromCircle(centre.xy+c(0,1.5),radius=1,Set=2)
+Vennerable:::.validateDrawing(VDC2)
 
 
 
@@ -351,14 +351,14 @@ grid.newpage();pushViewport(plotViewport(c(1,1,1,1)))
 makevp.eqsc(c(-3,3),c(-3,3))
 grid.xaxis()
 grid.yaxis()
-xy <- .edge.to.xy(VDC1@edgeList[[1]]); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())
+xy <- Vennerable:::.edge.to.xy(VDC1@edgeList[[1]]); grid.lines(xy[,1],xy[,2],default.units="native",arrow=arrow())
 PlotFaces(VDC1)
 PlotFaces(VDC2,gp=gpar(fill="red"))
 PlotSetBoundaries(VDC1)
-.PlotFaceNames.TissueDrawing (VDC1)
+Vennerable:::.PlotFaceNames.TissueDrawing (VDC1)
 PlotNodes(VDC1)
 PlotNodes(VDC2)
-.PlotFaceNames.TissueDrawing (VDC2)
+Vennerable:::.PlotFaceNames.TissueDrawing (VDC2)
 
 @
  \end{center}\end{figure}
@@ -372,12 +372,12 @@ x <- d*cos(angles)
 y <- d*sin(angles)
 r <- rep(r,3)
 	centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
-	VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
-	VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
-	TM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
-	VDC3 <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
-	TM <- addSetToDrawing (drawing1=TM,drawing2=VDC3,set2Name="Set3")
-.validateDrawing(TM)
+	VDC1 <- Vennerable:::newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
+	VDC2 <- Vennerable:::newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
+	TM <- Vennerable:::addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
+	VDC3 <- Vennerable:::newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
+	TM <- Vennerable:::addSetToDrawing (drawing1=TM,drawing2=VDC3,set2Name="Set3")
+Vennerable:::.validateDrawing(TM)
 @
 
 \begin{figure}[H]\begin{center}
@@ -395,11 +395,11 @@ shoar(TM);
 
 <<noc>>=
 centre.xy <- c(0,-2)
-VDC1 <- newTissueFromCircle(centre.xy,radius=2,Set=1)
-VDC2 <- newTissueFromCircle(centre.xy+c(0,3.5),radius=1,Set=2)
-TN2 <- addSetToDrawing(VDC1,VDC2)
-VDC3 <- newTissueFromCircle(c(0,-.5),radius=1,Set=3)
-.validateDrawing(TN2)
+VDC1 <- Vennerable:::newTissueFromCircle(centre.xy,radius=2,Set=1)
+VDC2 <- Vennerable:::newTissueFromCircle(centre.xy+c(0,3.5),radius=1,Set=2)
+TN2 <- Vennerable:::addSetToDrawing(VDC1,VDC2)
+VDC3 <- Vennerable:::newTissueFromCircle(c(0,-.5),radius=1,Set=3)
+Vennerable:::.validateDrawing(TN2)
 @
 
 \begin{figure}[H]\begin{center}
@@ -416,11 +416,11 @@ shoar(TN2);
 \subsection{Example of bug 528}
 <<nocbug>>=
 centre.xy <- c(0,-2)
-VDC1b <- newTissueFromCircle(centre.xy,radius=2,Set=1)
-VDC2b <- newTissueFromCircle(centre.xy+c(0,3),radius=1,Set=2)
-TN2b <- (addSetToDrawing(VDC1b,VDC2b))
+VDC1b <- Vennerable:::newTissueFromCircle(centre.xy,radius=2,Set=1)
+VDC2b <- Vennerable:::newTissueFromCircle(centre.xy+c(0,3),radius=1,Set=2)
+TN2b <- (Vennerable:::addSetToDrawing(VDC1b,VDC2b))
 TN2b
-(.validateDrawing(TN2b))
+(Vennerable:::.validateDrawing(TN2b))
 @
 
 \begin{figure}[H]\begin{center}
@@ -441,8 +441,8 @@ shoar(TN2b)
 Ellipses could be coped with specially by finding roots of quartics,
 but don't bother and just generate them as polygons
 <<dve>>=
-VE <- newTissueFromEllipse (f1=c(0,0),phi=pi/4,e=.5,a=0.5,Set=1)
-.validateDrawing(VE)
+VE <- Vennerable:::newTissueFromEllipse (f1=c(0,0),phi=pi/4,e=.5,a=0.5,Set=1)
+Vennerable:::.validateDrawing(VE)
 
 @
 \begin{figure}[H]\begin{center}
@@ -462,16 +462,16 @@ PlotNodes(VE)
 	x0 <- c( -0.9, -5.0)
 	VE <- list()
 	dx <- 0.2
-	VE[[1]] <- newTissueFromEllipse (x0+c(0,0),-phi ,e,-a,Set=1,dx=dx)
-	VE[[2]] <- newTissueFromEllipse (x0+c(dex,0),phi ,e,a,Set=2,dx=dx)
-	VE[[3]] <- newTissueFromEllipse (x0+c(-dey,dey),-phi ,e,-a,Set=3,dx=dx)
-	VE[[4]] <- newTissueFromEllipse (x0+c(dex+dey,dey),phi ,e,a,Set=4,dx=dx)
+	VE[[1]] <- Vennerable:::newTissueFromEllipse (x0+c(0,0),-phi ,e,-a,Set=1,dx=dx)
+	VE[[2]] <- Vennerable:::newTissueFromEllipse (x0+c(dex,0),phi ,e,a,Set=2,dx=dx)
+	VE[[3]] <- Vennerable:::newTissueFromEllipse (x0+c(-dey,dey),-phi ,e,-a,Set=3,dx=dx)
+	VE[[4]] <- Vennerable:::newTissueFromEllipse (x0+c(dex+dey,dey),phi ,e,a,Set=4,dx=dx)
 
 	TM <- VE[[1]]
-	TM2 <- addSetToDrawing(TM,VE[[2]],set2Name=paste("Set",2,sep=""))
-	TM3 <- addSetToDrawing(TM2,VE[[3]],set2Name=paste("Set",3,sep=""))
-	TM4 <- addSetToDrawing(TM3,VE[[4]],set2Name=paste("Set",4,sep=""))
-.validateDrawing(TM4)
+	TM2 <- Vennerable:::addSetToDrawing(TM,VE[[2]],set2Name=paste("Set",2,sep=""))
+	TM3 <- Vennerable:::addSetToDrawing(TM2,VE[[3]],set2Name=paste("Set",3,sep=""))
+	TM4 <- Vennerable:::addSetToDrawing(TM3,VE[[4]],set2Name=paste("Set",4,sep=""))
+Vennerable:::.validateDrawing(TM4)
 @
 
 
@@ -482,37 +482,37 @@ PlotNodes(VE)
 <<isect>>=
 centre.xy <- c(0,0)
 
-VDC1 <- newTissueFromCircle(centre.xy,radius=2,Set=1); 
-renameFaces(VDC1,oldName=.faceNames(VDC1,onlyVisible=TRUE),"1")
-VDC2 <- newTissueFromCircle(centre.xy+c(0,1.5),radius=1,Set=2)
+VDC1 <- Vennerable:::newTissueFromCircle(centre.xy,radius=2,Set=1); 
+#renameFaces(VDC1,oldName=Vennerable:::.faceNames(VDC1,onlyVisible=TRUE),"1")
+VDC2 <- Vennerable:::newTissueFromCircle(centre.xy+c(0,1.5),radius=1,Set=2)
 edge1 <- VDC1@edgeList[[1]]
 edge2 <- VDC2@edgeList[[1]]
-.findIntersection (edge1,edge2)
+Vennerable:::.findIntersection (edge1,edge2)
 
 edge1 <- VD8@edgeList[["p1|p4|4"]]
 edge2 <- VDC2@edgeList[[1]]
-.findIntersection(edge1,edge2) # no intersections
+Vennerable:::.findIntersection(edge1,edge2) # no intersections
 
 
 edge1 <- VD8@edgeList[["p1|p4|4"]]
 edge2 <- VD8@edgeList[["p2|p4|2"]]
-.findIntersection(edge1,edge2) # are two intersections
+Vennerable:::.findIntersection(edge1,edge2) # are two intersections
 
 
 
-.find.point.within.face(drawing=VD8,faceName="1001") 
-.is.point.within.face (VD8,"DarkMatter",p7)
-.is.point.within.face (VD8,"DarkMatter",matrix(c(-100,100),ncol=2))
+Vennerable:::.find.point.within.face(drawing=VD8,faceName="1001") 
+Vennerable:::.is.point.within.face (VD8,"DarkMatter",p7)
+Vennerable:::.is.point.within.face (VD8,"DarkMatter",matrix(c(-100,100),ncol=2))
 
 edge1 <- VD8@edgeList[["p1|p4|4"]]
 edge2 <- VD8@edgeList[["p1|p3|3"]]
 
-.findIntersection(edge1,edge2)
+Vennerable:::.findIntersection(edge1,edge2)
 
 
 drawing1 <- VDC1; drawing2 <- VDC2
-VM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
-.validateDrawing(VM)
+VM <- Vennerable:::addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
+Vennerable:::.validateDrawing(VM)
 
 @
 
@@ -524,13 +524,13 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(VM)
 PlotSetBoundaries(VM)
-.PlotFaceNames.TissueDrawing (VM)
+Vennerable:::.PlotFaceNames.TissueDrawing (VM)
 PlotNodes(VM)
 
 @
  \end{center}\end{figure}
 
-\section{addSetToDrawing  two polygons}
+\section{Vennerable:::addSetToDrawing  two polygons}
 
 <<ippsect>>=
 	d <- 1 ; s1 <- 0.7; s2 <- 0.6
@@ -543,10 +543,10 @@ d  <- 0.9146274 ; s1 <- 2.449490 ; s2 <- 2.645751
 	rownames(poly.1) <- paste("s",1:4,sep="")
 	poly.2 <- matrix(c(l2,-s2/2,l2,s2/2,r2,s2/2,r2,-s2/2),ncol=2,byrow=TRUE)
 	rownames(poly.2) <- paste("s",2:5,sep="")
-	VDP1 <- newTissueFromPolygon(points.xy=poly.1,Set=1)
-	VDP2 <- newTissueFromPolygon(points.xy=poly.2,Set=2)
-	TM <- addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
-.validateDrawing(TM)
+	VDP1 <- Vennerable:::newTissueFromPolygon(points.xy=poly.1,Set=1)
+	VDP2 <- Vennerable:::newTissueFromPolygon(points.xy=poly.2,Set=2)
+	TM <- Vennerable:::addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
+Vennerable:::.validateDrawing(TM)
 
 @
 \begin{figure}[H]\begin{center}
@@ -557,15 +557,15 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(TM )
 PlotSetBoundaries(TM )
-.PlotFaceNames.TissueDrawing (TM )
+Vennerable:::.PlotFaceNames.TissueDrawing (TM )
 PlotNodes(TM )
 
 @
  \end{center}\end{figure}
 
 <<removep>>=
-TMR <- remove.nonintersectionpoints(drawing=TM)
-.validateDrawing(TMR)
+TMR <- Vennerable:::remove.nonintersectionpoints(drawing=TM)
+Vennerable:::.validateDrawing(TMR)
 @
 
 \begin{figure}[H]\begin{center}
@@ -576,13 +576,13 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(TMR )
 PlotSetBoundaries(TMR )
-.PlotFaceNames.TissueDrawing (TMR )
+Vennerable:::.PlotFaceNames.TissueDrawing (TMR )
 PlotNodes(TMR )
 
 @
  \end{center}\end{figure}
 %##################
-\section{addSetToDrawing  a polygon and a circle}
+\section{Vennerable:::addSetToDrawing  a polygon and a circle}
 
 <<ipcsect>>=
 centre.xy <- c(0,0)
@@ -591,20 +591,20 @@ centre.xy <- c(0,0)
 poly.xy <- matrix(c(-2,1,-2,2.75,0,2.75,0,1),byrow=TRUE,ncol=2,
 		dimnames=list(paste("r",1:4,sep="")))
 
-VDP1 <- newTissueFromPolygon(points.xy=poly.xy,Set=2)
+VDP1 <- Vennerable:::newTissueFromPolygon(points.xy=poly.xy,Set=2)
 
 poly2.xy <- -poly.xy
 rownames(poly2.xy) <-sub("r","rx",rownames(poly2.xy))
 
-VDP2 <- newTissueFromPolygon(points.xy=poly2.xy,Set=3)
+VDP2 <- Vennerable:::newTissueFromPolygon(points.xy=poly2.xy,Set=3)
 
 
 
 
 drawing1 <- VDC1; drawing2 <- VDP1
-VDCPM<- addSetToDrawing (drawing1=VDC1,drawing2=VDP1,set2Name="Set2")
-#VDCPM <- remove.nonintersectionpoints(drawing=VDCPM)
-.validateDrawing(VDCPM)
+VDCPM<- Vennerable:::addSetToDrawing (drawing1=VDC1,drawing2=VDP1,set2Name="Set2")
+#VDCPM <- Vennerable:::remove.nonintersectionpoints(drawing=VDCPM)
+Vennerable:::.validateDrawing(VDCPM)
 @
 
 \begin{figure}[H]\begin{center}
@@ -615,7 +615,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(VDCPM)
 PlotSetBoundaries(VDCPM)
-.PlotFaceNames.TissueDrawing (VDCPM)
+Vennerable:::.PlotFaceNames.TissueDrawing (VDCPM)
 PlotNodes(VDCPM)
 
 @
@@ -624,7 +624,7 @@ PlotNodes(VDCPM)
 \begin{figure}[H]\begin{center}
 
 <<isect2>>=
-VDCPM2<- addSetToDrawing (drawing1=VDCPM,drawing2=VDP2,set2Name="Set3")
+VDCPM2<- Vennerable:::addSetToDrawing (drawing1=VDCPM,drawing2=VDP2,set2Name="Set3")
 @
 
 <<shoVPC2merge,fig=TRUE>>=
@@ -634,7 +634,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(VDCPM2)
 PlotSetBoundaries(VDCPM2)
-.PlotFaceNames.TissueDrawing (VDCPM2)
+Vennerable:::.PlotFaceNames.TissueDrawing (VDCPM2)
 PlotNodes(VDCPM2)
 
 @
@@ -645,12 +645,12 @@ PlotNodes(VDCPM2)
 
 <<innercircle>>=
 centre.xy <- c(0,0)
-VDC3 <- newTissueFromCircle(centre.xy,radius=2,Set=1)
-VDC4 <- newTissueFromCircle(centre.xy,radius=1,Set=2)
-VDI <- addSetToDrawing (drawing1=VDC3,drawing2=VDC4,set2Name="Set2")
+VDC3 <- Vennerable:::newTissueFromCircle(centre.xy,radius=2,Set=1)
+VDC4 <- Vennerable:::newTissueFromCircle(centre.xy,radius=1,Set=2)
+VDI <- Vennerable:::addSetToDrawing (drawing1=VDC3,drawing2=VDC4,set2Name="Set2")
 
 
-.validateDrawing(VDI)
+Vennerable:::.validateDrawing(VDI)
 @
 
 \begin{figure}[H]\begin{center}
@@ -661,7 +661,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(VDI)
 PlotSetBoundaries(VDI)
-.PlotFaceNames.TissueDrawing (VDI)
+Vennerable:::.PlotFaceNames.TissueDrawing (VDI)
 PlotNodes(VDI)
 shoar(VDI)
 @
@@ -671,11 +671,11 @@ The code only attemtps to inject invisible edges between known points,
 so we have to give the algorithm a hint by inserting such known points in the right place
 <<outercircle>>=
 centre.xy <- c(-1.5,0)
-VDC5 <- newTissueFromCircle(centre.xy,radius=1,Set=1)
-VDC6 <- newTissueFromCircle(centre.xy+c(3,0),radius=1,Set=2)
-VDC6 <- injectPoint(VDC6,"c21|c21|2",newPoint=matrix(c(0.5,0),ncol=2,dimnames=list("c3")))
-VDO <- addSetToDrawing (drawing1=VDC5,drawing2=VDC6,set2Name="Set2")
-.validateDrawing(VDO)
+VDC5 <- Vennerable:::newTissueFromCircle(centre.xy,radius=1,Set=1)
+VDC6 <- Vennerable:::newTissueFromCircle(centre.xy+c(3,0),radius=1,Set=2)
+VDC6 <- Vennerable:::injectPoint(VDC6,"c21|c21|2",newPoint=matrix(c(0.5,0),ncol=2,dimnames=list("c3")))
+VDO <- Vennerable:::addSetToDrawing (drawing1=VDC5,drawing2=VDC6,set2Name="Set2")
+Vennerable:::.validateDrawing(VDO)
 @
 \begin{figure}[H]\begin{center}
 <<shoVDO,fig=TRUE>>=
@@ -685,7 +685,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(VDO)
 PlotSetBoundaries(VDO)
-.PlotFaceNames.TissueDrawing (VDO)
+Vennerable:::.PlotFaceNames.TissueDrawing (VDO)
 PlotNodes(VDO)
 shoar(VDO)
 @
@@ -696,10 +696,10 @@ shoar(VDO)
 
 <<tangen>>=
 centre.xy <- c(0,0)
-VDC7 <- newTissueFromCircle(centre.xy,radius=2,Set=1)
-VDC8 <- newTissueFromCircle(centre.xy+c(1,0),radius=1,Set=2)
-VDT <- addSetToDrawing (drawing1=VDC7,drawing2=VDC8,set2Name="Set2")
-.validateDrawing(VDT)
+VDC7 <- Vennerable:::newTissueFromCircle(centre.xy,radius=2,Set=1)
+VDC8 <- Vennerable:::newTissueFromCircle(centre.xy+c(1,0),radius=1,Set=2)
+VDT <- Vennerable:::addSetToDrawing (drawing1=VDC7,drawing2=VDC8,set2Name="Set2")
+Vennerable:::.validateDrawing(VDT)
 @
 \begin{figure}[H]\begin{center}
 
@@ -710,7 +710,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(VDT)
 PlotSetBoundaries(VDT)
-.PlotFaceNames.TissueDrawing (VDT)
+Vennerable:::.PlotFaceNames.TissueDrawing (VDT)
 PlotNodes(VDT)
 
 @
@@ -719,10 +719,10 @@ PlotNodes(VDT)
 
 <<tangen2>>=
 centre.xy <- c(0,0)
-VDC9 <- newTissueFromCircle(centre.xy,radius=1,Set=1)
-VDC10 <- newTissueFromCircle(centre.xy+c(1,0),radius=2,Set=2)
-VDT2 <- addSetToDrawing (drawing1=VDC9,drawing2=VDC10,set2Name="Set2")
-.validateDrawing(VDT2)
+VDC9 <- Vennerable:::newTissueFromCircle(centre.xy,radius=1,Set=1)
+VDC10 <- Vennerable:::newTissueFromCircle(centre.xy+c(1,0),radius=2,Set=2)
+VDT2 <- Vennerable:::addSetToDrawing (drawing1=VDC9,drawing2=VDC10,set2Name="Set2")
+Vennerable:::.validateDrawing(VDT2)
 @
 \begin{figure}[H]\begin{center}
 
@@ -733,7 +733,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(VDT2)
 PlotSetBoundaries(VDT2)
-.PlotFaceNames.TissueDrawing (VDT2)
+Vennerable:::.PlotFaceNames.TissueDrawing (VDT2)
 PlotNodes(VDT2)
 
 @
@@ -747,11 +747,11 @@ r=c(r1,r2)
 centres <- matrix(c(-d/2,0,d/2,0),ncol=2,byrow=TRUE)
 #C2 <- TwoCircles(r=c(r1,r2),d=d,V) # d in TwoCircles is distance of centre from origin
 
-VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
-VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
+VDC1 <- Vennerable:::newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
+VDC2 <- Vennerable:::newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
 
-VDT <- addSetToDrawing (drawing1=VDC1 ,drawing2=VDC2,set2Name="Set2")
-.validateDrawing(VDT)
+VDT <- Vennerable:::addSetToDrawing (drawing1=VDC1 ,drawing2=VDC2,set2Name="Set2")
+Vennerable:::.validateDrawing(VDT)
 @
 \begin{figure}[H]\begin{center}
 
@@ -766,7 +766,7 @@ PlotSetBoundaries(VDC1);PlotSetBoundaries(VDC2,gp=gpar(col="red"))
 PlotNodes(VDC1)
 PlotNodes(VDC2)
 
-.PlotFaceNames.TissueDrawing (VDT)
+Vennerable:::.PlotFaceNames.TissueDrawing (VDT)
 PlotNodes(VDT)
 
 @
@@ -781,9 +781,9 @@ poly.1 <- matrix(c(l1,-s1/2,l1,s1/2,r1,s1/2,r1,-s1/2),ncol=2,byrow=TRUE)
 	rownames(poly.1) <- paste("s",1:4,sep="")
 	poly.2 <- matrix(c(l2,-s2/2,l2,s2/2,r2,s2/2,r2,-s2/2),ncol=2,byrow=TRUE)
 	rownames(poly.2) <- paste("s",2:5,sep="")
-	VDP1 <- newTissueFromPolygon(points.xy=poly.1,Set=1)
-	VDP2 <- newTissueFromPolygon(points.xy=poly.2,Set=2)
-		TM <- addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
+	VDP1 <- Vennerable:::newTissueFromPolygon(points.xy=poly.1,Set=1)
+	VDP2 <- Vennerable:::newTissueFromPolygon(points.xy=poly.2,Set=2)
+		TM <- Vennerable:::addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
 @
 \begin{figure}[H]\begin{center}
 
@@ -794,7 +794,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(TM)
 PlotSetBoundaries(TM)
-.PlotFaceNames.TissueDrawing (TM)
+Vennerable:::.PlotFaceNames.TissueDrawing (TM)
 PlotNodes(TM)
 
 @
@@ -811,9 +811,9 @@ d <- 1; s1 <- 1; s2 <- 1
 	rownames(poly.1) <- paste("s",1:4,sep="")
 	poly.2 <- matrix(c(l2,-s2/2,l2,s2/2,r2,s2/2,r2,-s2/2),ncol=2,byrow=TRUE)
 	rownames(poly.2) <- paste("s",2:5,sep="")
-	VDP3 <- newTissueFromPolygon(points.xy=poly.1,Set=1)
-	VDP4 <- newTissueFromPolygon(points.xy=poly.2,Set=2)
-	TM3 <- addSetToDrawing (drawing1=VDP3 ,drawing2=VDP4, set2Name="Set2")
+	VDP3 <- Vennerable:::newTissueFromPolygon(points.xy=poly.1,Set=1)
+	VDP4 <- Vennerable:::newTissueFromPolygon(points.xy=poly.2,Set=2)
+	TM3 <- Vennerable:::addSetToDrawing (drawing1=VDP3 ,drawing2=VDP4, set2Name="Set2")
 @
 \begin{figure}[H]\begin{center}
 
@@ -824,7 +824,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(TM3)
 PlotSetBoundaries(TM3)
-.PlotFaceNames.TissueDrawing (TM3)
+Vennerable:::.PlotFaceNames.TissueDrawing (TM3)
 PlotNodes(TM3)
 
 @
@@ -838,11 +838,11 @@ x <- d*cos(angles)
 		y <- d*sin(angles)
 				r <- rep(r,3)
 centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
-	VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
-	VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
-	TM3 <- addSetToDrawing (drawing1=VDC1 ,drawing2=VDC2, set2Name="Set2")
-	VDC3 <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
-	TM3 <- addSetToDrawing (drawing1=TM3 ,drawing2=VDC3, set2Name="Set3")
+	VDC1 <- Vennerable:::newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
+	VDC2 <- Vennerable:::newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
+	TM3 <- Vennerable:::addSetToDrawing (drawing1=VDC1 ,drawing2=VDC2, set2Name="Set2")
+	VDC3 <- Vennerable:::newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
+	TM3 <- Vennerable:::addSetToDrawing (drawing1=TM3 ,drawing2=VDC3, set2Name="Set3")
 @
 \begin{figure}[H]\begin{center}
 
@@ -853,7 +853,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(TM3)
 PlotSetBoundaries(TM3)
-.PlotFaceNames.TissueDrawing (TM3)
+Vennerable:::.PlotFaceNames.TissueDrawing (TM3)
 PlotNodes(TM3)
 
 @
@@ -865,11 +865,11 @@ r <- c( 1.261566 ,0.977205, 1.492705)
 x <- c(0.000000,  1.350138 ,-1.086542)
 y <- c(1.2615663, -0.8066661, -0.4028718)
 	centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
-	VDC1 <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
-	VDC2 <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
-	TM <- addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
-	VDC3 <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
-	TM <- addSetToDrawing (drawing1=TM,drawing2=VDC3,set2Name="Set3")
+	VDC1 <- Vennerable:::newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
+	VDC2 <- Vennerable:::newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
+	TM <- Vennerable:::addSetToDrawing (drawing1=VDC1,drawing2=VDC2,set2Name="Set2")
+	VDC3 <- Vennerable:::newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
+	TM <- Vennerable:::addSetToDrawing (drawing1=TM,drawing2=VDC3,set2Name="Set3")
 @
 \begin{figure}[H]\begin{center}
 
@@ -881,7 +881,7 @@ grid.yaxis()
 PlotFaces(TM)
 PlotSetBoundaries(VDC1);PlotSetBoundaries(VDC2);PlotSetBoundaries(VDC3);
 #PlotNodes(VDC1);PlotNodes(VDC2);PlotNodes(VDC3);
-.PlotFaceNames.TissueDrawing (TM)
+Vennerable:::.PlotFaceNames.TissueDrawing (TM)
 PlotNodes(TM)
 shoar(TM)
 @
@@ -893,9 +893,9 @@ r <- c(  1.492705, 0.977205, 1.128379)
 x <- c(0.000000,  1.384666, -1.028597 )
  y <- c(1.49270533, -0.55257134, -0.02662434 )
 centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
-VDC12b <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
-VDC22b <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
-TM2b <- try( addSetToDrawing (drawing1=VDC12b,drawing2=VDC22b,set2Name="Set2"))
+VDC12b <- Vennerable:::newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
+VDC22b <- Vennerable:::newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
+TM2b <- try( Vennerable:::addSetToDrawing (drawing1=VDC12b,drawing2=VDC22b,set2Name="Set2"))
 @
 \begin{figure}[H]\begin{center}
 
@@ -916,12 +916,12 @@ r <- c(    1.261566261010080, 0.977205023805840, 1.128379167095513)
 x <- c(  0.000000000000000 , 1.194972714052796 ,-1.194972714052796 )
  y <- c( 1.261566261010080, -0.808187193387839, -0.808187193387839 )
 	centres <- matrix(c(x,y),ncol=2,byrow=FALSE)
-	VDC1c <- newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
-	VDC2c <- newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
-	TMc <- addSetToDrawing (drawing1=VDC1c,drawing2=VDC2c,set2Name="Set2")
-	VDC3c <- newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
-	TM3c <- addSetToDrawing (drawing1=TMc,drawing2=VDC3c,set2Name="Set3")
-	TV3c <- .merge.faces.invisibly.split(TM3c)
+	VDC1c <- Vennerable:::newTissueFromCircle(centres[1,],radius=r[1],Set=1); 
+	VDC2c <- Vennerable:::newTissueFromCircle(centres[2,],radius=r[2],Set=2); 
+	TMc <- Vennerable:::addSetToDrawing (drawing1=VDC1c,drawing2=VDC2c,set2Name="Set2")
+	VDC3c <- Vennerable:::newTissueFromCircle(centres[3,],radius=r[3],Set=3); 
+	TM3c <- Vennerable:::addSetToDrawing (drawing1=TMc,drawing2=VDC3c,set2Name="Set3")
+	TV3c <- Vennerable:::.merge.faces.invisibly.split(TM3c)
 @
 \begin{figure}[H]\begin{center}
 
@@ -940,16 +940,9 @@ shoar(TV3c)
 \section{Triangles}
 <<>>=
 
-.inscribetriangle.feasible <- function(wghts) {
-	w0 <- 1- sum(wghts)
-	stopifnot(all(wghts <= 1) & all(wghts>=0) & w0>=0)
-	wa <- wghts[1];wb <- wghts[2]; wc <- wghts[3]
-	Delta <- w0^2 - 4 * wa * wb * wc
-	return (Delta>=0)
-}
 .inscribetriangle.compute <- function (wghts) {
 	wa <- wghts[1];wb <- wghts[2]; wc <- wghts[3]
-	stopifnot(.inscribetriangle.feasible(wghts)) 
+	stopifnot(Vennerable:::.inscribetriangle.feasible(wghts)) 
 	pa <- (1-wc)
 	pb <- (wb+wc-wa-1)
 	pc <- wa * (1-wb)
@@ -967,12 +960,12 @@ shoar(TV3c)
 .inscribetriangle.inscribe <- function(xy,wghts) {
 	scalef <- NA
 	
-	isfeasible <- .inscribetriangle.feasible(wghts)
+	isfeasible <- Vennerable:::.inscribetriangle.feasible(wghts)
 	if (!isfeasible) {
 		scalef <- 4 * wghts[1]*wghts[2]*wghts[3]/(1-sum(wghts))^2
 		scalef <- scalef^(1/3)
 		wghts <- wghts / (scalef*1.001)
-		isfeasible <- .inscribetriangle.feasible(wghts)
+		isfeasible <- Vennerable:::.inscribetriangle.feasible(wghts)
 		stopifnot(!isfeasible)
 	}
 	if (!isfeasible) return(list(feasible=FALSE))
@@ -993,7 +986,7 @@ shoar(TV3c)
 	outer.innerw <- 1 - sum(outer.weights)
 	outer.inner.ratios <- outer.weights/outer.innerw #  ratio of each wa, wb,wc to pooled inner weights
 
-	outer.feasible <- .inscribetriangle.feasible(outer.weights)
+	outer.feasible <- Vennerable:::.inscribetriangle.feasible(outer.weights)
 
 	# the inner triangle 
 	wab <- 0.0625
@@ -1007,7 +1000,7 @@ shoar(TV3c)
 	Weight.Inner <- sf * WeightVisible
 	if (sf>0) {	
 		inner.weights <- inner.weights/sf 
-		inner.feasible <- .inscribetriangle.feasible(inner.weights)
+		inner.feasible <- Vennerable:::.inscribetriangle.feasible(inner.weights)
 	} else {
 		inner.feasible <- FALSE
 	}
@@ -1034,11 +1027,11 @@ shoar(TV3c)
 	outline.b.xy  <- do.call(rbind,list(outer.xy[2,,drop=FALSE],inner.xy[2,,drop=FALSE],innest.xy[2,,drop=FALSE],innest.xy[3,,drop=FALSE],inner.xy[1,,drop=FALSE]))
 	outline.c.xy  <- do.call(rbind,list(outer.xy[3,,drop=FALSE],inner.xy[3,,drop=FALSE],innest.xy[3,,drop=FALSE],innest.xy[1,,drop=FALSE],inner.xy[2,,drop=FALSE]))
 
-	VDP1 <- newTissueFromPolygon(points.xy=outline.a.xy,Set=1)
-	VDP2 <- newTissueFromPolygon(points.xy=outline.b.xy,Set=2)
-	VDP3 <- newTissueFromPolygon(points.xy=outline.c.xy,Set=3)
-	TMT <- addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
-	TMT <- addSetToDrawing (drawing1=TMT ,drawing2=VDP3, set2Name="Set3")
+	VDP1 <- Vennerable:::newTissueFromPolygon(points.xy=outline.a.xy,Set=1)
+	VDP2 <- Vennerable:::newTissueFromPolygon(points.xy=outline.b.xy,Set=2)
+	VDP3 <- Vennerable:::newTissueFromPolygon(points.xy=outline.c.xy,Set=3)
+	TMT <- Vennerable:::addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
+	TMT <- Vennerable:::addSetToDrawing (drawing1=TMT ,drawing2=VDP3, set2Name="Set3")
 @
 
 \begin{figure}[H]\begin{center}
@@ -1050,7 +1043,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(TMT)
 PlotSetBoundaries(TMT)
-.PlotFaceNames.TissueDrawing (TMT)
+Vennerable:::.PlotFaceNames.TissueDrawing (TMT)
 PlotNodes(TMT)
 
 @
@@ -1068,7 +1061,7 @@ PlotNodes(TMT)
 	outer.innerw <- 1 - sum(outer.weights)
 	outer.inner.ratios <- outer.weights/outer.innerw #  ratio of each wa, wb,wc to pooled inner weights
 
-	outer.feasible <- .inscribetriangle.feasible(outer.weights)
+	outer.feasible <- Vennerable:::.inscribetriangle.feasible(outer.weights)
 
 	# the inner triangle 
 	wab <- 0.166666667
@@ -1083,7 +1076,7 @@ PlotNodes(TMT)
 	Weight.Inner <- sf * WeightVisible
 	if (sf>0) {	
 		inner.weights <- inner.weights/sf 
-		inner.feasible <- .inscribetriangle.feasible(inner.weights)
+		inner.feasible <- Vennerable:::.inscribetriangle.feasible(inner.weights)
 	} else {
 		inner.feasible <- FALSE
 	}
@@ -1110,11 +1103,11 @@ PlotNodes(TMT)
 	outline.b.xy  <- do.call(rbind,list(outer.xy[2,,drop=FALSE],inner.xy[2,,drop=FALSE],innest.xy[2,,drop=FALSE],innest.xy[3,,drop=FALSE],inner.xy[1,,drop=FALSE]))
 	outline.c.xy  <- do.call(rbind,list(outer.xy[3,,drop=FALSE],inner.xy[3,,drop=FALSE],innest.xy[3,,drop=FALSE],innest.xy[1,,drop=FALSE],inner.xy[2,,drop=FALSE]))
 
-	VDP1 <- newTissueFromPolygon(points.xy=outline.a.xy,Set=1)
-	VDP2 <- newTissueFromPolygon(points.xy=outline.b.xy,Set=2)
-	VDP3 <- newTissueFromPolygon(points.xy=outline.c.xy,Set=3)
-	TMT <- addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
-	TMT <- addSetToDrawing (drawing1=TMT ,drawing2=VDP3, set2Name="Set3")
+	VDP1 <- Vennerable:::newTissueFromPolygon(points.xy=outline.a.xy,Set=1)
+	VDP2 <- Vennerable:::newTissueFromPolygon(points.xy=outline.b.xy,Set=2)
+	VDP3 <- Vennerable:::newTissueFromPolygon(points.xy=outline.c.xy,Set=3)
+	TMT <- Vennerable:::addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
+	TMT <- Vennerable:::addSetToDrawing (drawing1=TMT ,drawing2=VDP3, set2Name="Set3")
 @
 
 
@@ -1126,7 +1119,7 @@ grid.xaxis()
 grid.yaxis()
 PlotFaces(TMT)
 PlotSetBoundaries(TMT)
-.PlotFaceNames.TissueDrawing (TMT)
+Vennerable:::.PlotFaceNames.TissueDrawing (TMT)
 PlotNodes(TMT)
 
 @
@@ -1140,12 +1133,12 @@ SS1 <- matrix(ss1,ncol=2,byrow=FALSE);rownames(SS1)<-paste("sa",1:6,sep="")
 SS2 <- matrix(ss2,ncol=2,byrow=FALSE);rownames(SS2)<-paste("sb",1:4,sep="")
 SS3 <- matrix(ss3,ncol=2,byrow=FALSE);rownames(SS3)<-paste("sc",1:6,sep="")
 
-VDP1 <- newTissueFromPolygon(points.xy=SS1,Set=1)
-VDP2 <- newTissueFromPolygon(points.xy=SS2,Set=2)
-VDP3 <- newTissueFromPolygon(points.xy=SS3,Set=3)
+VDP1 <- Vennerable:::newTissueFromPolygon(points.xy=SS1,Set=1)
+VDP2 <- Vennerable:::newTissueFromPolygon(points.xy=SS2,Set=2)
+VDP3 <- Vennerable:::newTissueFromPolygon(points.xy=SS3,Set=3)
 
-	TM <- addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
-	TM <- addSetToDrawing (drawing1=TM ,drawing2=VDP3, set2Name="Set3")
+	TM <- Vennerable:::addSetToDrawing (drawing1=VDP1 ,drawing2=VDP2, set2Name="Set2")
+	TM <- Vennerable:::addSetToDrawing (drawing1=TM ,drawing2=VDP3, set2Name="Set3")
 
 
 
@@ -1161,7 +1154,7 @@ grid.yaxis()
 PlotFaces(TM)
 PlotSetBoundaries(TM,gp=gpar(lwd=2,col=c("green","red")))
 PlotNodes(TM)
-.PlotFaceNames.TissueDrawing (TM)
+Vennerable:::.PlotFaceNames.TissueDrawing (TM)
 
 PlotSetBoundaries(VDP3,gp=gpar(lwd=2,col=c("green")))
 #.PlotArcs(VD,c("p1|p5|1","p2|p4|2"),arrow=arrow())
@@ -1174,10 +1167,10 @@ PlotSetBoundaries(VDP3,gp=gpar(lwd=2,col=c("green")))
 <<nc1>>=
 px1 <- matrix(c(-5,-3,-5,3,5,3,5,-3),ncol=2,byrow=TRUE); rownames(px1) <- paste("pa",1:nrow(px1),sep="")
 px2 <- matrix(c(-3,-5,-3,5,3,5,3,-5),ncol=2,byrow=TRUE); rownames(px2) <- paste("pb",1:nrow(px2),sep="")
-VX1 <- newTissueFromPolygon(px1,Set=1)
-VX2 <-  newTissueFromPolygon(px2,Set=2)
+VX1 <- Vennerable:::newTissueFromPolygon(px1,Set=1)
+VX2 <-  Vennerable:::newTissueFromPolygon(px2,Set=2)
 
-TM <- addSetToDrawing(VX1,VX2,set2Name="Set2")
+TM <- Vennerable:::addSetToDrawing(VX1,VX2,set2Name="Set2")
 @
 
 
@@ -1189,7 +1182,7 @@ grid.xaxis();grid.yaxis()
 PlotNodes(TM)
 PlotSetBoundaries(TM,gp=gpar(lwd=2,col=c("green","red","blue")))
 
-.PlotFaceNames.TissueDrawing (TM)
+Vennerable:::.PlotFaceNames.TissueDrawing (TM)
 
 #.PlotArcs(VD,c("p1|p5|1","p2|p4|2"),arrow=arrow())
 @
@@ -1203,11 +1196,11 @@ PlotSetBoundaries(TM,gp=gpar(lwd=2,col=c("green","red","blue")))
 	phi <- 0.8; dex <- 1.7;dey <- 2.5; a<- 7.6; e<- 0.9
 	x0 <- c( -0.9, -5.0)
 	E <- list()
-	E[[1]] <- newTissueFromEllipse (f1=x0+c(0,0),phi=-phi ,dx=0.1,e=e,a=-a,Set=1)
-	E[[2]] <-newTissueFromEllipse (x0+c(5+dex,-2),phi ,e,a,dx=0.1,Set=2)
+	E[[1]] <- Vennerable:::newTissueFromEllipse (f1=x0+c(0,0),phi=-phi ,dx=0.1,e=e,a=-a,Set=1)
+	E[[2]] <-Vennerable:::newTissueFromEllipse (x0+c(5+dex,-2),phi ,e,a,dx=0.1,Set=2)
 
 	TM <- E[[1]]
-	TM <- addSetToDrawing(TM,E[[2]],set2Name="Set2")
+	TM <- Vennerable:::addSetToDrawing(TM,E[[2]],set2Name="Set2")
 @
 
 \begin{figure}[H]\begin{center}
@@ -1220,7 +1213,7 @@ PlotFaces(TM)
 #PlotSetBoundaries(E[[1]],gp=gpar(lwd=2,col=c("green","red","blue")))
 PlotSetBoundaries(E[[2]],gp=gpar(lwd=2,col=c("red","red","blue")))
 PlotNodes(TM)
-.PlotFaceNames.TissueDrawing (TM)
+Vennerable:::.PlotFaceNames.TissueDrawing (TM)
 
 PlotSetBoundaries(TM,gp=gpar(lwd=2,col=c("green")))
 #.PlotArcs(VD,c("p1|p5|1","p2|p4|2"),arrow=arrow())
@@ -1233,13 +1226,13 @@ PlotSetBoundaries(TM,gp=gpar(lwd=2,col=c("green")))
 	x0 <- c( -0.9, -5.0)
 	dx <- 0.1
 	E <- list()
-	E[[1]] <- newTissueFromEllipse (f1=x0+c(0,0),dx =dx,phi=-phi ,e=e,a=-a,Set=1)
-	E[[2]] <-newTissueFromEllipse (x0+c(dex,0),dx =dx,phi ,e,a,Set=2)
-	E[[3]] <-newTissueFromEllipse (x0+c(-dey,dey),dx =dx,-phi ,e,-a,Set=3)
-	E[[4]] <-newTissueFromEllipse (x0+c(dex+dey,dey),dx =dx,phi ,e,a,Set=4)
+	E[[1]] <- Vennerable:::newTissueFromEllipse (f1=x0+c(0,0),dx =dx,phi=-phi ,e=e,a=-a,Set=1)
+	E[[2]] <-Vennerable:::newTissueFromEllipse (x0+c(dex,0),dx =dx,phi ,e,a,Set=2)
+	E[[3]] <-Vennerable:::newTissueFromEllipse (x0+c(-dey,dey),dx =dx,-phi ,e,-a,Set=3)
+	E[[4]] <-Vennerable:::newTissueFromEllipse (x0+c(dex+dey,dey),dx =dx,phi ,e,a,Set=4)
 
 	TM <- E[[1]]
-	TM <- addSetToDrawing(TM,E[[2]],set2Name="Set2")
+	TM <- Vennerable:::addSetToDrawing(TM,E[[2]],set2Name="Set2")
 @
 
 
@@ -1252,7 +1245,7 @@ grid.xaxis();grid.yaxis()
 PlotFaces(TM)
 PlotSetBoundaries(TM,gp=gpar(lwd=2,col=c("green","red","blue")))
 PlotNodes(TM)
-.PlotFaceNames.TissueDrawing (TM)
+Vennerable:::.PlotFaceNames.TissueDrawing (TM)
 
 @
 \caption{Injecting points}
@@ -1271,7 +1264,7 @@ makevp.eqsc(c(-50,50),c(-50,50))
 grid.xaxis();grid.yaxis()
 PlotSetBoundaries(Tstem)
 PlotNodes(Tstem)
-.validateDrawing(Tstem)
+Vennerable:::.validateDrawing(Tstem)
 @
 \caption{Chow-Ruskey weighted 4-set diagram with smudge warnings}
 \end{center}
@@ -1282,8 +1275,6 @@ PlotNodes(Tstem)
 \begin{tabular}{|l|l|}
 \hline
 Author & Jonathan Swinton
-\\
-SVN id of this document & ${}$Id: TissueDrawingTest.Rnw 80 2013-07-24 22:13:34Z js229 ${}$.
 \\
 Generated on & \today
 \\

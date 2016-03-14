@@ -4,7 +4,7 @@ names(Weight) <- c("000","001","010","011","100","101","110","111")
 
 V00000001 <- Venn(Weight=Weight,SetNames=LETTERS[1:3])
 
-undebug(addSetToDrawing )
+#undebug(addSetToDrawing )
 (compute.Venn(V00000001 ))
 
 Weight <- c(0,0,0,1,0,1,0,1)
