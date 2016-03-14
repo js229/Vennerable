@@ -26,7 +26,7 @@ Venn diagrams in R\\with the \texttt{Vennerable} package
 \author{Jonathan Swinton\\\texttt{jonathan@swintons.net}}
 
 \usepackage{Sweave}
-\SweaveOpts{prefix.string=figdir/Venn,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
+\SweaveOpts{prefix.string=Venn,debug=TRUE,eps=FALSE,echo=FALSE,pdf.version=1.4}
 \usepackage{float}
 \usepackage{natbib}
 \usepackage{mathptmx}
