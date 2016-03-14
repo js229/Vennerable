@@ -19,6 +19,8 @@ makeme()
 
 \documentclass[a4paper]{article}
 
+\usepackage[utf8]{inputenc} % ok, time to join the 8 bit world
+\usepackage[T1]{fontenc}
 
 \title{
 TissueDrawing
@@ -60,7 +62,7 @@ shoar <- function(VDI) {
 }
 @
 
-\tableofcontents
+%\tableofcontents
 \newpage
 
 \section{The VDedgeDrawn object}
@@ -1097,8 +1099,8 @@ PlotNodes(TMT)
 		innest.xy=innest$inner.xy
 		# finally we construct the outside triangle
 		# outer.xy is equilateral with centre at zero, so just scale 
-		# if inner triangle has area A and rim has area A' then scaling 
-		# is (A'+A)=s^2 A so s^2=1+A'/A. A'/A is the w0ratio calculated above
+		# if inner triangle has area A and rim has area A* then scaling 
+		# is (A*+A)=s^2 A so s^2=1+A*/A. A*/A is the w0ratio calculated above
 		outest.xy <- outer.xy * sqrt( 1+ w0ratio)
 	rownames(outer.xy) <- paste("to",1:3,sep="")
 	rownames(inner.xy) <- paste("ti",1:3,sep="")

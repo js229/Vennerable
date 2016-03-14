@@ -5,7 +5,7 @@
 
 <<defmakeme,echo=FALSE,eval=FALSE>>=
 makeme <- function() {
-	setwd("C:/Users/Dad/documents/Vennerable/pkg/Vennerable/inst/doc")
+	setwd("~/Vennerable/vignettes")
 	Sweave("VennDrawingTest.Rnw",stylepath=FALSE)
 }
 makeme()
@@ -19,6 +19,8 @@ makeme()
 
 \documentclass[a4paper]{article}
 
+\usepackage[utf8]{inputenc} % ok, time to join the 8 bit world
+\usepackage[T1]{fontenc}
 
 \title{
 Venn diagrams 
