@@ -5,9 +5,7 @@ It displays Venn and Euler diagrams for up to 9 different sets and using a varie
 It allows the display of area-weighted Venn diagrams and allows fine graphical control over the result.
 
 This package needs a couple of BioConductor packages. Something like
-`source("https://bioconductor.org/biocLite.R");
-biocLite(c("RBGL","graph"))`
-should get those.
+`install.packages("BiocManager"); BiocManager::install(c("RBGL","graph"))` should get those.
 
 This package may make it to CRAN one day, but it isn't there now so the easiest way to install it is with the `devtools` package:
 `install.packages("devtools"); library(devtools);`. 
